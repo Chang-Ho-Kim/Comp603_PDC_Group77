@@ -14,7 +14,7 @@ import java.io.Serializable;
 
 public class SimulationSettings implements Serializable {
     private int temperature = 20;
-    private double electricityCost = 0.000000108;
+    private double electricityCost = 0.00039;
 
     
     
