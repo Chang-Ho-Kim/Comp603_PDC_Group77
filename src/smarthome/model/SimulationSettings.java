@@ -15,7 +15,15 @@ import java.io.Serializable;
 public class SimulationSettings implements Serializable {
     private int temperature = 20;
     private double electricityCost = 0.00039;
+    private int powerThreshold = 6000;
 
+    public int getPowerThreshold() {
+        return powerThreshold;
+    }
+
+    public void setPowerThreshold(int powerThreshold) {
+        this.powerThreshold = powerThreshold;
+    }
     
     
     public double getElectricityCost() {

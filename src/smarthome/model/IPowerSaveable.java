@@ -9,5 +9,6 @@ package smarthome.model;
  * @author rlack
  */
 public interface IPowerSaveable {
-    
+    public void turnPsOn();
+    public void turnPsOff();
 }

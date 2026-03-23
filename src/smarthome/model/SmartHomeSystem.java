@@ -71,6 +71,12 @@ public class SmartHomeSystem implements Serializable {
             }
         }
         totalElectricityUsage = i;
+        
+        if(totalElectricityUsage > simulation.getPowerThreshold()){
+            PowerSaverDevice.setThresholdOver(true);
+        }else{
+            PowerSaverDevice.setThresholdOver(false);
+        }
     }
     
 

@@ -9,6 +9,6 @@ package smarthome.model;
  * @author rlack
  */
 
-public class MusicPlayer extends Device {
+public class MusicPlayer extends PowerSaverDevice {
     public MusicPlayer(String name){ super(name); this.type = "Music Player"; this.electricityUsage = 670;}
 }

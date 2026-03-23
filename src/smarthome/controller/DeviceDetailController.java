@@ -10,8 +10,10 @@ package smarthome.controller;
  */
 
 import java.text.DecimalFormat;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import smarthome.model.Device;
+import smarthome.model.PowerSaverDevice;
 import smarthome.model.ScheduledDevice;
 import smarthome.model.SensorDevice;
 import smarthome.model.SmartHomeSystem;
@@ -63,6 +65,11 @@ public class DeviceDetailController implements IInterfaceController {
                 menu.append("\nSensor: Off" );
             }
         }
+        if(device instanceof PowerSaverDevice ps){
+           
+            menu.append("\n\nNote: This powersaver device will turn off if \n      total electricity usage exceends Threshold");
+            
+        }
         
         return menu.toString();
     }
@@ -90,7 +97,7 @@ public class DeviceDetailController implements IInterfaceController {
             case "1": if(!device.isOn()){
                         device.turnOn(); 
                         controller.setCurrentMessage(device.getName() + " was turned on" ); 
-                        system.addMessage(device.getName() + " was turned on\n"); 
+                        system.addMessage("[" +LocalDateTime.now().format(controller.dateTimeFormatter) +"] " +device.getName() + " was turned on\n"); 
                         break;}
                       else{
                         controller.setCurrentMessage(device.getName() + " is already on" );break;
@@ -98,7 +105,7 @@ public class DeviceDetailController implements IInterfaceController {
             case "2": if(device.isOn()){
                         device.turnOff(); 
                         controller.setCurrentMessage(device.getName() + " was turned off" );
-                        system.addMessage(device.getName() + " was turned off\n"); 
+                        system.addMessage("[" +LocalDateTime.now().format(controller.dateTimeFormatter) +"] " +device.getName() + " was turned off\n"); 
                         break;}
                       else{
                         controller.setCurrentMessage(device.getName() + " is already off" );break;

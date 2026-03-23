@@ -9,6 +9,6 @@ package smarthome.model;
  * @author rlack
  */
 
-public class RobotCleaner extends Device {
+public class RobotCleaner extends ScheduledDevice {
     public RobotCleaner(String name){ super(name); this.type = "Robot Cleaner"; this.electricityUsage = 100;}
 }

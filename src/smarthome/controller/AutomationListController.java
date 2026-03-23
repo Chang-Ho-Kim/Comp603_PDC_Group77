@@ -84,7 +84,18 @@ public class AutomationListController implements IInterfaceController {
                     }
                 }
             }
-            
+             else if(((dType == automationType.POWERSAVER))){
+                for (Device d : system.getAllDevices()) {
+                    if(d instanceof PowerSaverDevice psd){
+                        deviceList.add(i-1, psd);
+                        menu.append(i)
+                            .append(". ")
+                            .append(psd.getName())
+                            .append("\n");
+                        i++;
+                    }
+                }
+            }
             
             
             

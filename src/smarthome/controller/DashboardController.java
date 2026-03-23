@@ -72,18 +72,16 @@ public class DashboardController implements IInterfaceController {
     
     @Override
     public String getOptionsContents(){
-        return "<Type Device index to view that device or>\n"+
-        "Enter to refresh Screen\n"+
-        "W. Turn on all devices  |  "+
-        "E. Turn off all devices\n"+
-        "A. Add Device  |  "+
-        "R. Remove Device\n"+
-        //"E. Total Energy Usage\n"+
-        "F. View Automatable Devices\n"+
-        "S. Simulation Temperature Settings\n"+
-        "L. Smart Home Usage Log\n"+
-        //"D. Delete Log\n"+
-        "Q. Quit";
+        return "[Device index] View device details>\n"+
+        "[Enter] Refresh Screen (Simulating time pass)>\n"+
+        "[W] Turn on all devices  |  "+
+        "[E] Turn off all devices\n"+
+        "[A] Add Device  |  "+
+        "[R] Remove Device\n"+
+        "[F] View Automatable Devices\n"+
+        "[S] Simulation Settings\n"+
+        "[L] Smart Home Usage Log\n"+
+        "[Q] Quit";
     }
     
     @Override

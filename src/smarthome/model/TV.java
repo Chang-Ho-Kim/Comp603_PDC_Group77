@@ -9,6 +9,6 @@ package smarthome.model;
  * @author rlack
  */
 
-public class TV extends Device {
-    public TV(String name){ super(name); this.type = "Television"; this.electricityUsage = 80;}
+public class TV extends PowerSaverDevice {
+    public TV(String name){ super(name); this.type = "Television"; this.electricityUsage = 800;}
 }

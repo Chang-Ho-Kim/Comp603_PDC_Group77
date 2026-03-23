@@ -29,7 +29,9 @@ public class SimulationController implements IInterfaceController {
     @Override
     public String getMenuContents(){
         return "=== SIMULATION SETTINGS ===\n\n" +
-        "Temperature: " + simulation.getTemperature();
+        "Temperature: " + simulation.getTemperature() +
+        "\nElectricity Rate: $" + simulation.getElectricityCost()+ " / Watt-hour"+
+        "\nPower Saver Threshold: " + simulation.getPowerThreshold() + " Watts";
     }
 
     @Override
