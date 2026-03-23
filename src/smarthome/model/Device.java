@@ -10,6 +10,8 @@ import java.time.LocalTime;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import smarthome.service.DependencyContainer;
+import smarthome.service.IBillingService;
 
 /**
  *
@@ -62,7 +64,7 @@ public abstract class Device implements Serializable, ISwitchable {
         
     }
 
-    public boolean isAutoOn(){
+    public boolean isAutoOn() {
         return false;
     }
     
@@ -70,26 +72,13 @@ public abstract class Device implements Serializable, ISwitchable {
         return usageHistory;
     }
     
+    /**
+     * @deprecated Use DependencyContainer.getInstance().getBillingService().calculateDeviceBill()
+     * Calculate the cost for this device.
+     */
+    @Deprecated
     public double calculateCost(double rate) {
-        double totalCost = 0;
-
-        for (UsageRecord r : usageHistory) {
-
-            if (r.getStart() == null) continue;
-
-            LocalDateTime endTime = (r.getEnd() == null)
-                    ? LocalDateTime.now()
-                    : r.getEnd();
-
-            long seconds = Math.max(0,
-                    Duration.between(r.getStart(), endTime).getSeconds());
-
-            double hours = seconds / 3600.0;
-
-            double powerWatts = getElectricityUsage(); // watts
-            totalCost += powerWatts * hours * rate;
-        }
-
-        return totalCost;
+        IBillingService billingService = DependencyContainer.getInstance().getBillingService();
+        return billingService.calculateDeviceBill(this, rate);
     }
 }

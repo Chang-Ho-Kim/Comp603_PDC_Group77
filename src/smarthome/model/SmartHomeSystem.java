@@ -4,95 +4,127 @@
  */
 package smarthome.model;
 
-/**
- *
- * @author rlack
- */
-
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.time.Duration;
-import java.time.LocalDateTime;
+import smarthome.service.*;
 
+/**
+ * SmartHomeSystem - Core model managing devices and simulation settings.
+ * Now properly separated concerns:
+ * - Device management: addDevice, removeDevice, getDevice
+ * - Simulation settings access: getSimulation
+ * - Business logic delegated to services (billing, automation, logging)
+ */
 public class SmartHomeSystem implements Serializable {
 
     private HashMap<String, Device> devices;
     private SimulationSettings simulation;
-    private ArrayList<String> messages;
-    private int totalElectricityUsage;
-    private double electricityBill;
     
-    public SmartHomeSystem(){
+    // Cached services for backward compatibility (transient - not serialized)
+    private transient IBillingService billingService;
+    private transient ILoggingService loggingService;
+    
+    public SmartHomeSystem() {
         devices = new HashMap<>();
         simulation = new SimulationSettings();
-        messages = new ArrayList();
-        totalElectricityUsage = 0;
     }
 
-    public Collection<Device> getAllDevices(){ return devices.values(); }
+    public Collection<Device> getAllDevices() {
+        return devices.values();
+    }
     
-    public Collection<String> getDeviceNames(){ return devices.keySet(); }
+    public Collection<String> getDeviceNames() {
+        return devices.keySet();
+    }
 
-    public Device getDevice(String id){ return devices.get(id); }
+    public Device getDevice(String id) {
+        return devices.get(id);
+    }
 
-    public SimulationSettings getSimulation(){ return simulation; }
+    public SimulationSettings getSimulation() {
+        return simulation;
+    }
     
-    public void addDevice(Device device){
+    public void addDevice(Device device) {
         devices.put(device.name, device);
     }
     
-    public void removeDevice(String name){
+    public void removeDevice(String name) {
         devices.remove(name);
     }
     
-    public void addMessage(String log){
-        messages.add(log);
+    // ===== Backward compatibility methods (delegate to services) =====
+    // These methods are kept for backward compatibility with existing controllers
+    
+    /**
+     * @deprecated Use DependencyContainer.getInstance().getBillingService().calculateTotalElectricityUsage()
+     */
+    @Deprecated
+    public int calculateTotalElectricityUsage() {
+        if (billingService == null) {
+            billingService = DependencyContainer.getInstance().getBillingService();
+        }
+        return billingService.calculateTotalElectricityUsage(devices.values());
     }
     
-    public ArrayList<String> getMessages(){
-        return messages;
-    }
-    
-    public void deleteLog(){
-        messages = new ArrayList();
-    }
-
+    /**
+     * @deprecated Use calculateTotalElectricityUsage() instead
+     */
+    @Deprecated
     public int getTotalElectricityUsage() {
-        return totalElectricityUsage;
+        return calculateTotalElectricityUsage();
     }
     
-     public void calculateTotalElectricityUsage() {
-        int i = 0;
-        for(Device d : devices.values()){
-            if(d.isOn()){
-                i+= d.getElectricityUsage();
-            }
+    /**
+     * @deprecated Use DependencyContainer.getInstance().getBillingService().calculateTotalBill()
+     */
+    @Deprecated
+    public double getElectricityBill(double rate) {
+        if (billingService == null) {
+            billingService = DependencyContainer.getInstance().getBillingService();
         }
-        totalElectricityUsage = i;
-        
-        if(totalElectricityUsage > simulation.getPowerThreshold()){
-            PowerSaverDevice.setThresholdOver(true);
-        }else{
-            PowerSaverDevice.setThresholdOver(false);
-        }
+        return billingService.calculateTotalBill(devices.values(), rate);
     }
     
-
-
-public double getElectricityBill(double rate) {
-    double totalCost = 0;
-
-    for (Device d : devices.values()) {
-        
-            totalCost += d.calculateCost(rate);
-        }
-    return totalCost;
-}
-
-public double getECost(){
-    return simulation.getElectricityCost();
-}
+    /**
+     * @deprecated Use simulation.getElectricityCost()
+     */
+    @Deprecated
+    public double getECost() {
+        return simulation.getElectricityCost();
+    }
     
+    /**
+     * @deprecated Use DependencyContainer.getInstance().getLoggingService()
+     */
+    @Deprecated
+    public void addMessage(String log) {
+        if (loggingService == null) {
+            loggingService = DependencyContainer.getInstance().getLoggingService();
+        }
+        loggingService.addMessage(log);
+    }
+    
+    /**
+     * @deprecated Use DependencyContainer.getInstance().getLoggingService().getMessages()
+     */
+    @Deprecated
+    public java.util.ArrayList<String> getMessages() {
+        if (loggingService == null) {
+            loggingService = DependencyContainer.getInstance().getLoggingService();
+        }
+        return loggingService.getMessages();
+    }
+    
+    /**
+     * @deprecated Use DependencyContainer.getInstance().getLoggingService().clearMessages()
+     */
+    @Deprecated
+    public void deleteLog() {
+        if (loggingService == null) {
+            loggingService = DependencyContainer.getInstance().getLoggingService();
+        }
+        loggingService.clearMessages();
+    }
 }

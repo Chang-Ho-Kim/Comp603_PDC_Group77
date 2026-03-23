@@ -5,34 +5,28 @@
 package smarthome.model;
 
 import java.time.LocalTime;
+import smarthome.service.IThresholdManager;
+import smarthome.service.DependencyContainer;
 
 /**
- *
- * @author rlack
+ * PowerSaverDevice - A device that turns off when power threshold is exceeded.
+ * Now uses dependency injection for threshold management instead of static fields.
  */
-public class PowerSaverDevice extends Device implements IPowerSaveable{
+public class PowerSaverDevice extends Device implements IPowerSaveable {
     
-    
-    private static boolean thresholdOver = false;
     private boolean psOn = true;
+    private transient IThresholdManager thresholdManager;
     
     public PowerSaverDevice(String name) {
         super(name);
+        this.type = "Power Saver";
+        this.electricityUsage = 0;
+        this.thresholdManager = DependencyContainer.getInstance().getThresholdManager();
     }
     
-    public static boolean isThresholdOver() {
-        return thresholdOver;
-    }
-
-    public static void setThresholdOver(boolean thresholdOver) {
-        PowerSaverDevice.thresholdOver = thresholdOver;
-    }
-    
-    
-    
-     @Override
+    @Override
     public void checkAutomation(int temp, LocalTime time) {
-        if(thresholdOver){
+        if (thresholdManager.isThresholdExceeded()) {
             this.turnOff();
         }
     }
@@ -44,12 +38,11 @@ public class PowerSaverDevice extends Device implements IPowerSaveable{
 
     @Override
     public void turnPsOn() {
-        psOn=true;
+        psOn = true;
     }
 
     @Override
     public void turnPsOff() {
-        psOn=false;
+        psOn = false;
     }
-    
 }

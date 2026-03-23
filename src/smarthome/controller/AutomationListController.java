@@ -114,15 +114,11 @@ public class AutomationListController implements IInterfaceController {
 
     @Override
     public void handleCommand(String command) {
-       switch(command){
-            case "1": dType = automationType.SCHEDULER; view.renderView(controller); break;
-                      
-            case "2": dType = automationType.SENSOR; view.renderView(controller);break;
-            
-            
-            case "3": dType = automationType.POWERSAVER; view.renderView(controller);break;
-            case "4": dType = automationType.ALL; view.renderView(controller);break;
-                      
+        switch(command){
+            case "1": dType = automationType.SCHEDULER; break;
+            case "2": dType = automationType.SENSOR; break;
+            case "3": dType = automationType.POWERSAVER; break;
+            case "4": dType = automationType.ALL; break;
             case "0": controller.showDashboard(); return;
             default: view.showInvalidOption();
         }
