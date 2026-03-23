@@ -1,42 +1,29 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package smarthome.model;
-
-/**
- *
- * @author rlack
- */
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.time.Duration;
-import java.time.LocalDateTime;
 
 public class SmartHomeSystem implements Serializable {
 
-    private HashMap<String, Device> devices;
-    private SimulationSettings simulation;
+    private final HashMap<String, Device> devices;
+    private final SimulationSettings simulation;
     private ArrayList<String> messages;
     private int totalElectricityUsage;
-    private double electricityBill;
+    private boolean isPowerSavingMode;
     
     public SmartHomeSystem(){
         devices = new HashMap<>();
         simulation = new SimulationSettings();
-        messages = new ArrayList();
+        messages = new ArrayList<>();
         totalElectricityUsage = 0;
+        isPowerSavingMode = false;
     }
 
     public Collection<Device> getAllDevices(){ return devices.values(); }
-    
     public Collection<String> getDeviceNames(){ return devices.keySet(); }
-
     public Device getDevice(String id){ return devices.get(id); }
-
     public SimulationSettings getSimulation(){ return simulation; }
     
     public void addDevice(Device device){
@@ -56,7 +43,7 @@ public class SmartHomeSystem implements Serializable {
     }
     
     public void deleteLog(){
-        messages = new ArrayList();
+        messages = new ArrayList<>();
     }
 
     public int getTotalElectricityUsage() {
@@ -67,32 +54,18 @@ public class SmartHomeSystem implements Serializable {
         int i = 0;
         for(Device d : devices.values()){
             if(d.isOn()){
-                i+= d.getElectricityUsage();
+                i += d.getElectricityUsage();
             }
         }
         totalElectricityUsage = i;
-        
-        if(totalElectricityUsage > simulation.getPowerThreshold()){
-            PowerSaverDevice.setThresholdOver(true);
-        }else{
-            PowerSaverDevice.setThresholdOver(false);
-        }
+        isPowerSavingMode = totalElectricityUsage > simulation.getPowerThreshold();
     }
-    
 
+    public boolean isPowerSavingMode() {
+        return isPowerSavingMode;
+    }
 
-public double getElectricityBill(double rate) {
-    double totalCost = 0;
-
-    for (Device d : devices.values()) {
-        
-            totalCost += d.calculateCost(rate);
-        }
-    return totalCost;
-}
-
-public double getECost(){
-    return simulation.getElectricityCost();
-}
-    
+    public double getECost(){
+        return simulation.getElectricityCost();
+    }
 }

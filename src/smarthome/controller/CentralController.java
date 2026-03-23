@@ -1,50 +1,37 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package smarthome.controller;
 
-/**
- *
- * @author rlack
- */
-
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import smarthome.model.SmartHomeSystem;
 import smarthome.model.Device;
-import smarthome.view.SmartHomeCLIView;
+import smarthome.view.ISmartHomeView;
+import smarthome.persistence.IPersistenceService;
 
-import java.util.Scanner;
-import smarthome.model.*;
-import smarthome.persistence.SaveLoadService;
-
-// OBVIOUSLY MAKE THIS A SINGLETON AS THERE SHOULD ONLY BE ONE CENTRAL CONTROLLER
 public class CentralController {
 
-    private SmartHomeSystem system;
-    private SmartHomeCLIView view;
-    private Scanner scanner = new Scanner(System.in);
+    private final SmartHomeSystem system;
+    private final ISmartHomeView view;
+    private final IPersistenceService persistenceService;
+    private final AutomationService automationService;
 
     private IInterfaceController currentInterface;
-    private DashboardController dashboardController;
-    private DeviceDetailController deviceController;
-    private SimulationController simulationController;
-    private LogController logController;
-    private DeviceAdderController deviceAdderController;
-    private DeviceRemoverController deviceRemoverController;
-    private AutomationListController automationController;
+    private final DashboardController dashboardController;
+    private final DeviceDetailController deviceController;
+    private final SimulationController simulationController;
+    private final LogController logController;
+    private final DeviceAdderController deviceAdderController;
+    private final DeviceRemoverController deviceRemoverController;
+    private final AutomationListController automationController;
     
     private String currentMessage;
-    DateTimeFormatter dateTimeFormatter;
-    DateTimeFormatter timeFormatter;
+    private final DateTimeFormatter dateTimeFormatter;
   
-    public CentralController(SmartHomeSystem system, SmartHomeCLIView view){
+    public CentralController(SmartHomeSystem system, ISmartHomeView view, IPersistenceService persistenceService){
         this.system = system;
         this.view = view;
+        this.persistenceService = persistenceService;
+        this.automationService = new AutomationService(system, this);
 
         dashboardController = new DashboardController(this, system, view);
         deviceController = new DeviceDetailController(this, system, view);
@@ -58,177 +45,49 @@ public class CentralController {
         currentMessage = "How may I be of assistance?";
         
         dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
         
-        system.addMessage("[" +LocalDateTime.now().format(dateTimeFormatter) +"] " + "Smart Home Simulator Started\n");
-        
+        system.addMessage("[" + LocalDateTime.now().format(dateTimeFormatter) + "] Smart Home Simulator Started\n");
     }
 
-    public void start(){
-        // inside CentralController.start()
-        Thread automationThread = new Thread(() -> {
-            while (true) {
-                try {
-                    synchronized(system) {
-                        checkAutomation();
-                        // updates devices, logs, messages
-                    }
-                    Thread.sleep(1000);     // 1 second
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-            }
-        });
-        automationThread.setDaemon(true); // stops with main thread
-        automationThread.start();
+    public void start() {
+        automationService.startAutomation();
         
-        while(true){
-            view.renderView(this);
-            System.out.print("\nSelect option: ");
-            String input = scanner.nextLine();
+        while (true) {
+            String title = "Smart Home System";
+            String menu = currentInterface.getMenuContents();
+            String options = currentInterface.getOptionsContents();
+            
+            view.displayMenu(title, menu, options);
+            view.displayMessage(currentMessage);
+            
+            String input = view.getInput("\nSelect option: ");
             currentInterface.handleCommand(input);
-            System.out.println("\n\n");
-            SaveLoadService.saveSystem(system); // save after each interaction, disable if too many writes
+            persistenceService.saveSystem(system);
         }
     }
 
-    public void showDashboard(){
-        currentInterface = dashboardController;
-    }
-
-    public void showDevice(Device device){
-        deviceController.setDevice(device);
-        currentInterface = deviceController;
-    }
-
-    public void showSimulation(){
-        currentInterface = simulationController;
-    }
+    public void showDashboard(){ currentInterface = dashboardController; }
+    public void showDevice(Device device){ deviceController.setDevice(device); currentInterface = deviceController; }
+    public void showSimulation(){ currentInterface = simulationController; }
+    public void showLog(){ currentInterface = logController; }
+    public void showDeviceAdder(){ currentInterface = deviceAdderController; }  
+    public void showDeviceRemover(){ currentInterface = deviceRemoverController; } 
+    public void showAutomation(){ currentInterface = automationController; } 
     
-    public void showLog(){
-        currentInterface = logController;
-    }
-      
-    public void showDeviceAdder(){
-        currentInterface = deviceAdderController;
-    }  
+    public String getCurrentMessage(){ return currentMessage; }
+    public void setCurrentMessage(String message){ currentMessage = message; }
     
-    public void showDeviceRemover(){
-        currentInterface = deviceRemoverController;
-    } 
-    
-    public void showAutomation(){
-        currentInterface = automationController;
-    } 
-    
-      
-    
-    public String getCurrentMessage(){
-        return currentMessage;
-    }
-    
-    public void setCurrentMessage(String message){
-        currentMessage = message;
-    }
-    
-    public String setDeviceProcedure(){
-   
-       System.out.println("What is it's name?: ");
-        String name = scanner.nextLine();
-        return name;
-    }
-    
-    public void removeDeviceProcedure(){
-     
-        
-     
-    }
-    
-    public void addMessage(String log){
-        system.addMessage(log);
-    }
-    
-    public ArrayList<String> getMessages(){
-        return system.getMessages();
-    }
-    
-    public void deleteLog(){
-        system.deleteLog();
-        currentMessage = "Log was deleted";
-    }
-    
-    public void displayTotalEnergyUsage(){
-        system.calculateTotalElectricityUsage();
-        System.out.println(system.getTotalElectricityUsage() + " Watts/Hour" );
-    }
-    
-     public IInterfaceController getCurrentInterface() {
-        return currentInterface;
-    }
-    
-     public DashboardController getDashboardController() {
-        return dashboardController;
-    } 
-     
-   public LocalTime setTime() {
-    System.out.println("Set Time: (HH:mm:ss)");
-
-    while (true) {
-        String time = scanner.nextLine();
-
-        try {
-            LocalTime parsedTime = LocalTime.parse(time, timeFormatter);
-            return parsedTime; 
-        } catch (DateTimeParseException e) {
-            System.out.println("Invalid time format. Please use HH:mm:ss");
-            System.out.print("Try again: ");
-        }
-    }
-}
-    
-    public int checkTemp(){
-        return system.getSimulation().getTemperature();
-    }
-    
-    public int setTemp(){
-        System.out.println("Set Temperature: ");
-        String temp = scanner.nextLine();
-
-        try {
-            int parsedTemp = Integer.parseInt(temp);
-            return parsedTemp;
-        } catch (DateTimeParseException e) {
-            System.out.println("Invalid time format. Please use HH:mm:ss");
-        }
-        return -67777;
-    }
-    
-    public void checkAutomation(){
-        for (Device d: system.getAllDevices()){
-                
-                if(d.isAutoOn()){
-                    boolean wasOn = d.isOn();
-                    d.checkAutomation(checkTemp(), LocalTime.now());
-                    if(wasOn != d.isOn()){
-                        system.addMessage("[" +LocalDateTime.now().format(dateTimeFormatter) +"] " + "Automation action: " + d.getName() +"\n");
-                            currentMessage =  "Automation action: " + d.getName() +"\n";
-                    }
-                }
-          
-        }
-    }
-    
-    public DateTimeFormatter getFormatter() {
-        return dateTimeFormatter;
-    }
-
-    public SmartHomeCLIView getView() {
-        return view;
-    }
+    public void addMessage(String log){ system.addMessage(log); }
+    public ArrayList<String> getMessages(){ return system.getMessages(); }
+    public void deleteLog(){ system.deleteLog(); currentMessage = "Log was deleted"; }
     
     public void exit(){
+        system.addMessage("[" + LocalDateTime.now().format(dateTimeFormatter) + "] Smart Home Simulator Ended\n");
         System.out.println("Exiting...");
-        system.addMessage("[" +LocalDateTime.now().format(dateTimeFormatter) +"] " + "Smart Home Simulator Ended\n");
         System.exit(0);
     }
+
+    public SmartHomeSystem getSystem() { return system; }
+    public ISmartHomeView getView() { return view; }
+    public DateTimeFormatter getDateTimeFormatter() { return dateTimeFormatter; }
 }

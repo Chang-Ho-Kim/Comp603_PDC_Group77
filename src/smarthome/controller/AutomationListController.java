@@ -1,134 +1,95 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package smarthome.controller;
 
-/**
- *
- * @author rlack
- */
-import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 import smarthome.model.Device;
-import smarthome.model.*;
+import smarthome.model.ISensorable;
+import smarthome.model.ScheduledDevice;
+import smarthome.model.PowerSaverDevice;
+import smarthome.model.SensorDevice;
 import smarthome.model.SmartHomeSystem;
-import smarthome.view.SmartHomeCLIView;
+import smarthome.view.ISmartHomeView;
 
 public class AutomationListController implements IInterfaceController {
-    private CentralController controller;
-    private SmartHomeSystem system;
-    private SmartHomeCLIView view;
+    private final CentralController controller;
+    private final SmartHomeSystem system;
+    private final ISmartHomeView view;
     
-    private enum automationType{ALL, POWERSAVER, SENSOR, SCHEDULER};
-    private automationType dType;
+    private enum AutomationType { ALL, POWERSAVER, SENSOR, SCHEDULER }
+    private AutomationType dType = AutomationType.ALL;
     
-    private ArrayList<Device> deviceList;
-    
-    public AutomationListController(CentralController controller, SmartHomeSystem system, SmartHomeCLIView view){
+    public AutomationListController(CentralController controller, SmartHomeSystem system, ISmartHomeView view){
         this.controller = controller;
         this.system = system;
         this.view = view;
-        dType = automationType.ALL;
-        
     }
-    
     
     @Override
     public String getMenuContents() {
-        deviceList = new ArrayList();
-        StringBuilder menu = new StringBuilder();
+        StringBuilder menu = new StringBuilder("=== AUTOMATABLE DEVICES (" + dType + ") ===\n\n");
         int i = 1;
         
-            if(((dType == automationType.ALL))){
-                for (Device d : system.getAllDevices()) {
-                    if((d instanceof ISensorable) ||(d instanceof ScheduledDevice) || (d instanceof IPowerSaveable)){
-                        deviceList.add(i-1, d);
-                        menu.append(i)
-                            .append(". ")
-                            .append(d.getName())
-                            .append(" [")
-                            .append(d.isOn() ? "ON" : "OFF")
-                            .append("]\n");
-                        i++;
+        for (Device d : system.getAllDevices()) {
+            boolean include = false;
+            String detail = "";
+
+            switch (dType) {
+                case ALL:
+                    if (d instanceof ISensorable || d instanceof ScheduledDevice || d instanceof PowerSaverDevice) {
+                        include = true;
+                        detail = d.isOn() ? "[ON]" : "[OFF]";
                     }
-                }
-            }
-            else if(((dType == automationType.SCHEDULER))){
-                for (Device d : system.getAllDevices()) {
-                    if(d instanceof ScheduledDevice sd){
-                        deviceList.add(i-1, sd);
-                        menu.append(i)
-                            .append(". ")
-                            .append(sd.getName())
-                            .append(" [")
-                            .append(sd.getStart())
-                            .append(" - ")
-                            .append(sd.getEnd())
-                            .append("]\n");
-                        i++;
+                    break;
+                case SCHEDULER:
+                    if (d instanceof ScheduledDevice sd) {
+                        include = true;
+                        detail = sd.getStart() + " - " + sd.getEnd();
                     }
-                }
-            }
-            else if(((dType == automationType.SENSOR))){
-                for (Device d : system.getAllDevices()) {
-                    if(d instanceof SensorDevice sd){
-                        deviceList.add(i-1, sd);
-                        menu.append(i)
-                            .append(". ")
-                            .append(sd.getName())
-                            .append(" [")
-                            .append(String.valueOf(sd.getLower()))
-                            .append("]\n");
-                        i++;
+                    break;
+                case SENSOR:
+                    if (d instanceof SensorDevice sd) {
+                        include = true;
+                        detail = "Lower: " + sd.getLower() + ", Upper: " + sd.getUpper();
                     }
-                }
-            }
-             else if(((dType == automationType.POWERSAVER))){
-                for (Device d : system.getAllDevices()) {
-                    if(d instanceof PowerSaverDevice psd){
-                        deviceList.add(i-1, psd);
-                        menu.append(i)
-                            .append(". ")
-                            .append(psd.getName())
-                            .append("\n");
-                        i++;
+                    break;
+                case POWERSAVER:
+                    if (d instanceof PowerSaverDevice) {
+                        include = true;
+                        detail = "Enabled";
                     }
-                }
+                    break;
             }
-            
-            
-            
+
+            if (include) {
+                menu.append(i++).append(". ").append(d.getName()).append(" ").append(detail).append("\n");
+            }
+        }
+        
+        if (i == 1) {
+            menu.append("No devices found for this category.");
+        }
         
         return menu.toString();
     }
 
     @Override
     public String getOptionsContents() {
-        return "1. Devices that can be scheduled\n" +
-                "2. Devices that can react to sensor data\n" +
-                "3. Devices that have power saver mode\n" +
-                "4. State of all automatable Devices\n" +
-                "\n                              (0. Return to dashboard)";
+        return "1. View scheduled devices\n" +
+               "2. View sensor-based devices\n" +
+               "3. View power-saving devices\n" +
+               "4. View all automatable devices\n" +
+               "                                    (0. Return to dashboard)";
     }
 
     @Override
     public void handleCommand(String command) {
        switch(command){
-            case "1": dType = automationType.SCHEDULER; view.renderView(controller); break;
-                      
-            case "2": dType = automationType.SENSOR; view.renderView(controller);break;
-            
-            
-            case "3": dType = automationType.POWERSAVER; view.renderView(controller);break;
-            case "4": dType = automationType.ALL; view.renderView(controller);break;
-                      
-            case "0": controller.showDashboard(); return;
-            default: view.showInvalidOption();
+            case "1": dType = AutomationType.SCHEDULER; break;
+            case "2": dType = AutomationType.SENSOR; break;
+            case "3": dType = AutomationType.POWERSAVER; break;
+            case "4": dType = AutomationType.ALL; break;
+            case "0": controller.showDashboard(); break;
+            default: controller.setCurrentMessage("Invalid option");
         }
     }
-    
-    
-    
-    
 }

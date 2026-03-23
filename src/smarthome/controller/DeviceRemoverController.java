@@ -1,44 +1,33 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package smarthome.controller;
 
-/**
- *
- * @author rlack
- */
-
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import smarthome.model.Device;
 import smarthome.model.SmartHomeSystem;
-import smarthome.view.SmartHomeCLIView;
+import smarthome.view.ISmartHomeView;
 
 public class DeviceRemoverController implements IInterfaceController {
 
-    private CentralController controller;
-    private SmartHomeSystem system;
-    private SmartHomeCLIView view;
+    private final CentralController controller;
+    private final SmartHomeSystem system;
+    private final ISmartHomeView view;
+    private List<Device> deviceList;
    
-    public DeviceRemoverController(CentralController controller, SmartHomeSystem system, SmartHomeCLIView view){
+    public DeviceRemoverController(CentralController controller, SmartHomeSystem system, ISmartHomeView view){
         this.controller = controller;
         this.system = system;
         this.view = view;
     }
 
-  
     @Override
     public String getMenuContents(){
-        StringBuilder menu = new StringBuilder();
+        deviceList = new ArrayList<>(system.getAllDevices());
+        StringBuilder menu = new StringBuilder("=== REMOVE DEVICE ===\n\n");
 
         int i = 1;
-        for (Device d : controller.getDashboardController().getDeviceList()) {
-            menu.append(i)
-                .append(". ")
-                .append(d.getName())
-                .append(" [")
-                .append(d.isOn() ? "ON" : "OFF")
-                .append("]\n");
+        for (Device d : deviceList) {
+            menu.append(i).append(". ").append(d.getName()).append("\n");
             i++;
         }
         return menu.toString();
@@ -46,28 +35,42 @@ public class DeviceRemoverController implements IInterfaceController {
 
     @Override
     public String getOptionsContents() {
-        return "What is the name of the device would you like to remove?:\n"
-                + "\n                          (Type back to return to dashboard)";
+        return "Enter device name or index to remove\n"
+             + "Enter 'back' to return to dashboard";
     }
 
     @Override
     public void handleCommand(String command){
-       if(system.getDeviceNames().contains(command)){
-            system.removeDevice(command);
-            controller.setCurrentMessage(command + " was removed\n");
-            system.addMessage("[" +LocalDateTime.now().format(controller.dateTimeFormatter) +"] "+command + " was removed\n");
+        String cmd = command.trim();
+        if (cmd.equalsIgnoreCase("back")) {
             controller.showDashboard();
+            return;
         }
-       else if(command.equals("back")){
-           System.out.println("Back to Dashboard"); 
-           controller.showDashboard();
-       }
-        else{
-           System.out.println(command +" does not exist in the system"); 
-           
+
+        Device toRemove = null;
+        
+        // Try by name first
+        if (system.getDeviceNames().contains(cmd)) {
+            toRemove = system.getDevice(cmd);
+        } else {
+            // Try by index
+            try {
+                int index = Integer.parseInt(cmd);
+                if (index > 0 && index <= deviceList.size()) {
+                    toRemove = deviceList.get(index - 1);
+                }
+            } catch (NumberFormatException ignored) {}
+        }
+
+        if (toRemove != null) {
+            String name = toRemove.getName();
+            system.removeDevice(name);
+            String msg = name + " was removed";
+            controller.setCurrentMessage(msg);
+            system.addMessage("[" + LocalDateTime.now().format(controller.getDateTimeFormatter()) + "] " + msg + "\n");
+            controller.showDashboard();
+        } else {
+            controller.setCurrentMessage("Device '" + cmd + "' not found");
         }
     }
-
-    
-    
 }

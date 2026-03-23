@@ -1,33 +1,25 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package smarthome;
-
-/**
- *
- * @author rlack
- */
-
 
 import smarthome.controller.CentralController;
 import smarthome.model.SmartHomeSystem;
+import smarthome.view.ISmartHomeView;
 import smarthome.view.SmartHomeCLIView;
-import smarthome.persistence.SaveLoadService;
+import smarthome.persistence.FilePersistenceService;
+import smarthome.persistence.IPersistenceService;
 
 public class Main {
 
     public static void main(String[] args) {
 
-        // Load previous system state or create new
-        SmartHomeSystem system = SaveLoadService.loadSystem();
+        IPersistenceService persistenceService = new FilePersistenceService();
+        SmartHomeSystem system = persistenceService.loadSystem();
 
-        SmartHomeCLIView view = new SmartHomeCLIView();
-        CentralController controller = new CentralController(system, view);
+        ISmartHomeView view = new SmartHomeCLIView();
+        CentralController controller = new CentralController(system, view, persistenceService);
 
         // Hook to save system on exit
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            SaveLoadService.saveSystem(system);
+            persistenceService.saveSystem(system);
         }));
 
         controller.start();

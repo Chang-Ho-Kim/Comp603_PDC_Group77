@@ -1,38 +1,20 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package smarthome.model;
 
-
-
-/**
- *
- * @author rlack
- */
-
 public class AirCon extends SensorDevice {
-    public AirCon(String name){ super(name); this.type = "Air Conditioner"; this.electricityUsage = 2000;}
-    
-  
+    public AirCon(String name){ 
+        super(name); 
+        this.type = "Air Conditioner"; 
+        this.electricityUsage = 2000;
+    }
 
-   @Override
+    @Override
     public void checkInThreshold(int currentTemp) {
-        if (this.getLower() <= currentTemp) {
+        // Turn on if temperature is above or equal to the upper threshold
+        if (currentTemp >= this.getUpper()) {
             scheduledAction();
-        } else {
+        } else if (currentTemp <= this.getLower()) {
+            // Turn off if temperature is below or equal to the lower threshold
             descheduledAction();
         }
     }
-    
-    public void setUpper(int upper) {
-        super.setUpper(upper);
-        super.setLower(upper);
-    }
-    
-    public void setLower(int lower) {
-        super.setUpper(lower);
-        super.setLower(lower);
-    }
-    
 }

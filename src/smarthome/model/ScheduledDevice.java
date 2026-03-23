@@ -1,23 +1,12 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package smarthome.model;
 
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 
-
-/**
- *
- * @author rlack
- */
-public abstract class ScheduledDevice extends Device implements ISchedulable{
+public abstract class ScheduledDevice extends Device implements ISchedulable {
     
     private LocalTime start;
     private LocalTime end;
     private boolean scheduleOn;
-    
     
     public ScheduledDevice(String name) {
         super(name);
@@ -41,57 +30,36 @@ public abstract class ScheduledDevice extends Device implements ISchedulable{
             this.turnOff();
         }
 
-        return wasOn != this.isOn(); // tells controller if UI update needed
+        return wasOn != this.isOn();
     }
 
     @Override
     public void scheduledAction() {
-       
     }
     
     @Override
     public void descheduledAction() {
         this.turnOff();
-        //this.setScheduleOn(false);
     }
     
-    public LocalTime getStart() {
-        return start;
-    }
+    public LocalTime getStart() { return start; }
+    public void setStart(LocalTime start) { this.start = start; }
 
-    public void setStart(LocalTime start) {
-        this.start = start;
-    }
+    public LocalTime getEnd() { return end; }
+    public void setEnd(LocalTime end) { this.end = end; }
 
-    public LocalTime getEnd() {
-        return end;
-    }
-
-    public void setEnd(LocalTime end) {
-        this.end = end;
-    }
-
-    public boolean isScheduleOn() {
-        return scheduleOn;
-    }
-
-    public void setScheduleOn(boolean scheduleOn) {
-        this.scheduleOn = scheduleOn;
-    }
+    public boolean isScheduleOn() { return scheduleOn; }
+    public void setScheduleOn(boolean scheduleOn) { this.scheduleOn = scheduleOn; }
 
     @Override
-    public void checkAutomation(int temp, LocalTime time) {
+    public void checkAutomation(AutomationContext context) {
         if(isScheduleOn()){
-            checkInSchedule(time);
+            checkInSchedule(context.getCurrentTime());
         }
-       
     }
 
     @Override
     public boolean isAutoOn() {
         return isScheduleOn();
     }
-    
-   
-    
 }
