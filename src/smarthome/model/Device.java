@@ -5,20 +5,17 @@
 package smarthome.model;
 
 import java.io.Serializable;
-import java.time.Duration;
 import java.time.LocalTime;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import smarthome.service.DependencyContainer;
-import smarthome.service.IBillingService;
 
 /**
  *
  * @author rlack
  */
 
-public abstract class Device implements Serializable, ISwitchable {
+public abstract class Device implements Serializable, ISwitchable, IDeviceUIHandler {
     protected String name;
     protected boolean isOn;
     protected String type;
@@ -72,13 +69,19 @@ public abstract class Device implements Serializable, ISwitchable {
         return usageHistory;
     }
     
-    /**
-     * @deprecated Use DependencyContainer.getInstance().getBillingService().calculateDeviceBill()
-     * Calculate the cost for this device.
-     */
-    @Deprecated
-    public double calculateCost(double rate) {
-        IBillingService billingService = DependencyContainer.getInstance().getBillingService();
-        return billingService.calculateDeviceBill(this, rate);
+    // IDeviceUIHandler default implementations
+    @Override
+    public String getAdditionalMenuContent() {
+        return ""; // Default: no additional menu content
+    }
+    
+    @Override
+    public String getAdditionalOptions() {
+        return ""; // Default: no additional options
+    }
+    
+    @Override
+    public boolean handleDeviceCommand(String command, smarthome.controller.IInputHandler handler) {
+        return false; // Default: device doesn't handle device-specific commands
     }
 }

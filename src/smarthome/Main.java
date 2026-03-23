@@ -1,3 +1,5 @@
+package smarthome;
+
 import smarthome.controller.CentralController;
 import smarthome.model.SmartHomeSystem;
 import smarthome.view.SmartHomeCLIView;

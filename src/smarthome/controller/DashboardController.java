@@ -13,11 +13,10 @@ import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import smarthome.model.Device;
 import smarthome.model.SmartHomeSystem;
+import smarthome.service.DependencyContainer;
+import smarthome.service.IBillingService;
 import smarthome.view.SmartHomeCLIView;
-
 import java.util.ArrayList;
-import smarthome.model.ScheduledDevice;
-import smarthome.model.SensorDevice;
 
 public class DashboardController implements IInterfaceController {
 
@@ -25,55 +24,46 @@ public class DashboardController implements IInterfaceController {
     private SmartHomeSystem system;
     private SmartHomeCLIView view;
     private ArrayList<Device> deviceList;
+    private IBillingService billingService;
     
     public DashboardController(CentralController controller, SmartHomeSystem system, SmartHomeCLIView view){
         this.controller = controller;
         this.system = system;
         this.view = view;
+        this.billingService = DependencyContainer.getInstance().getBillingService();
     }
 
     @Override
     public String getMenuContents(){
-        deviceList = new ArrayList(system.getAllDevices());
-        system.calculateTotalElectricityUsage();
+        deviceList = new ArrayList<>(system.getAllDevices());
         StringBuilder menu = new StringBuilder("=== SMART HOME DASHBOARD ===\n");
 
         int i = 1;
         for (Device d : deviceList) {
-            menu.append("\n")
-                .append(i)
-                .append(". ")
+            menu.append("\n").append(i).append(". ")
                 .append(d.getName())
                 .append(" [")
                 .append(d.isOn() ? "ON" : "OFF")
-                .append("] ");
-            if(d instanceof ScheduledDevice sd && sd.isScheduleOn()==true){
-                menu.append(" Auto-Mode [ ")
-                    .append(sd.getStart())
-                    .append(" - ")
-                    .append(sd.getEnd())
-                     .append(" ] ");
-            }
-            if(d instanceof SensorDevice srd && srd.isSensorOn()==true){
-                 menu.append(" Auto-Mode [")
-                    .append(srd.getLower())
-                     .append("] ");
-            }
-            
+                .append("]");
             i++;
         }
-        menu.append("\n\nTotal Electricity Rate: " + system.getTotalElectricityUsage() + " Watts/Hour\n");
         
+        int totalUsage = billingService.calculateTotalElectricityUsage(system.getAllDevices());
+        menu.append("\n\nTotal Electricity Rate: ").append(totalUsage).append(" Watts/Hour\n");
+        
+        double totalBill = billingService.calculateTotalBill(
+            system.getAllDevices(),
+            system.getSimulation().getElectricityCost()
+        );
         DecimalFormat df = new DecimalFormat("0.000000000");
-        
-        menu.append("Current Total Bill: $" + df.format(system.getElectricityBill(system.getECost())));
+        menu.append("Current Total Bill: $").append(df.format(totalBill));
         return menu.toString();
     }
     
     @Override
     public String getOptionsContents(){
-        return "[Device index] View device details>\n"+
-        "[Enter] Refresh Screen (Simulating time pass)>\n"+
+        return "[Device index] View device details\n"+
+        "[Enter] Refresh Screen (Simulating time pass)\n"+
         "[W] Turn on all devices  |  "+
         "[E] Turn off all devices\n"+
         "[A] Add Device  |  "+
@@ -96,7 +86,8 @@ public class DashboardController implements IInterfaceController {
                 d.turnOn();
             }
             if(!system.getAllDevices().isEmpty()){
-                controller.setCurrentMessage("All devices turned on"); system.addMessage("[" +LocalDateTime.now().format(controller.dateTimeFormatter) +"] " + "All devices turned on\n");
+                controller.setCurrentMessage("All devices turned on");
+                controller.addLogMessage("[" + LocalDateTime.now().format(controller.dateTimeFormatter) + "] " + "All devices turned on\n");
             }
             else{
                 controller.setCurrentMessage("You don't have any devices to turn on!");
@@ -108,7 +99,8 @@ public class DashboardController implements IInterfaceController {
                 d.turnOff();
             }
             if(!system.getAllDevices().isEmpty()){
-                controller.setCurrentMessage("All devices turned off"); system.addMessage("[" +LocalDateTime.now().format(controller.dateTimeFormatter) +"] "+ "All devices turned off\n");
+                controller.setCurrentMessage("All devices turned off");
+                controller.addLogMessage("[" + LocalDateTime.now().format(controller.dateTimeFormatter) + "] " + "All devices turned off\n");
             }
             else{
                 controller.setCurrentMessage("You don't have any devices to turn off!");
@@ -129,26 +121,12 @@ public class DashboardController implements IInterfaceController {
         } 
          
         if(command.equalsIgnoreCase("l")){
-            controller.setCurrentMessage("View Log"); //system.addMessage("View Log\n");
             controller.showLog();
-            return;
-        } 
-         //if(command.equalsIgnoreCase("d")){ 
-           // controller.deleteLog();
-           // return;
-        //} 
-        if(command.equalsIgnoreCase("")){
-            controller.checkAutomation();
             return;
         }
         if(command.equalsIgnoreCase("q")){
             controller.exit();
         }
-        //if(command.equalsIgnoreCase("e")){
-        //    controller.setCurrentMessage("Check total electricity usage"); system.addMessage("Electricity Usage\n");
-        //    controller.displayTotalEnergyUsage();
-        //    return;
-        //}
         try{
             int index = Integer.parseInt(command);
             Device device = deviceList.get(index-1);
@@ -157,9 +135,5 @@ public class DashboardController implements IInterfaceController {
             view.showInvalidOption();
             controller.setCurrentMessage("Invalid option input");
         }
-    }
-    
-     public ArrayList<Device> getDeviceList() {
-        return deviceList;
     }
 }

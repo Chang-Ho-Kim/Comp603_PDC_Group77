@@ -13,17 +13,16 @@ import java.time.LocalDateTime;
 import smarthome.model.Device;
 import smarthome.model.SmartHomeSystem;
 import smarthome.view.SmartHomeCLIView;
+import java.util.ArrayList;
 
 public class DeviceRemoverController implements IInterfaceController {
 
     private CentralController controller;
     private SmartHomeSystem system;
-    private SmartHomeCLIView view;
    
     public DeviceRemoverController(CentralController controller, SmartHomeSystem system, SmartHomeCLIView view){
         this.controller = controller;
         this.system = system;
-        this.view = view;
     }
 
   
@@ -32,7 +31,8 @@ public class DeviceRemoverController implements IInterfaceController {
         StringBuilder menu = new StringBuilder();
 
         int i = 1;
-        for (Device d : controller.getDashboardController().getDeviceList()) {
+        ArrayList<Device> deviceList = new ArrayList<>(system.getAllDevices());
+        for (Device d : deviceList) {
             menu.append(i)
                 .append(". ")
                 .append(d.getName())
@@ -52,22 +52,18 @@ public class DeviceRemoverController implements IInterfaceController {
 
     @Override
     public void handleCommand(String command){
-       if(system.getDeviceNames().contains(command)){
+        if(system.getDeviceNames().contains(command)){
             system.removeDevice(command);
-            controller.setCurrentMessage(command + " was removed\n");
-            system.addMessage("[" +LocalDateTime.now().format(controller.dateTimeFormatter) +"] "+command + " was removed\n");
+            controller.setCurrentMessage(command + " was removed");
+            controller.addLogMessage("[" + LocalDateTime.now().format(controller.dateTimeFormatter) + "] " + command + " was removed\n");
             controller.showDashboard();
         }
-       else if(command.equals("back")){
-           System.out.println("Back to Dashboard"); 
-           controller.showDashboard();
-       }
+        else if(command.equals("back")){
+            System.out.println("Back to Dashboard");
+            controller.showDashboard();
+        }
         else{
-           System.out.println(command +" does not exist in the system"); 
-           
+            System.out.println(command + " does not exist in the system");
         }
     }
-
-    
-    
 }

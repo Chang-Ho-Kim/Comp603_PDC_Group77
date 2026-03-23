@@ -33,7 +33,6 @@ public class CentralController implements ICentralController, IMessageManager, I
     private final Scanner scanner;
     
     // Services (now injected)
-    private final IFormatterService formatterService;
     private final ILoggingService loggingService;
     private final IAutomationService automationService;
     private final IBillingService billingService;
@@ -62,7 +61,6 @@ public class CentralController implements ICentralController, IMessageManager, I
         
         // Get services from dependency container
         DependencyContainer container = DependencyContainer.getInstance();
-        this.formatterService = container.getFormatterService();
         this.loggingService = container.getLoggingService();
         this.automationService = container.getAutomationService();
         this.billingService = container.getBillingService();
@@ -262,39 +260,19 @@ public class CentralController implements ICentralController, IMessageManager, I
     public void addMessage(String log) {
         loggingService.addMessage(log);
     }
-    
-    /**
-     * @deprecated Use loggingService.getMessages()
-     */
-    @Deprecated
-    public java.util.ArrayList<String> getMessages() {
-        return loggingService.getMessages();
-    }
-    
-    /**
-     * @deprecated Use loggingService.clearMessages()
-     */
-    @Deprecated
-    public void deleteLog() {
-        loggingService.clearMessages();
-        setCurrentMessage("Log was deleted");
-    }
-    
-    /**
-     * @deprecated Use appropriate methods instead
-     */
-    @Deprecated
-    public DashboardController getDashboardController() {
-        if (dashboardController == null) {
-            dashboardController = new DashboardController(this, system, (smarthome.view.SmartHomeCLIView) view);
-        }
-        return dashboardController;
-    }
 
     public void exit() {
         System.out.println("Exiting...");
         loggingService.addMessage("[" + dateTimeFormatter.format(LocalDateTime.now()) + "] " +
                 "Smart Home Simulator Ended\n");
         System.exit(0);
+    }
+    
+    /**
+     * Get the logging service for direct access to logs
+     * @return The ILoggingService instance
+     */
+    public ILoggingService getLoggingService() {
+        return loggingService;
     }
 }

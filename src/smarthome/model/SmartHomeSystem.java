@@ -7,7 +7,6 @@ package smarthome.model;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
-import smarthome.service.*;
 
 /**
  * SmartHomeSystem - Core model managing devices and simulation settings.
@@ -20,10 +19,6 @@ public class SmartHomeSystem implements Serializable {
 
     private HashMap<String, Device> devices;
     private SimulationSettings simulation;
-    
-    // Cached services for backward compatibility (transient - not serialized)
-    private transient IBillingService billingService;
-    private transient ILoggingService loggingService;
     
     public SmartHomeSystem() {
         devices = new HashMap<>();
@@ -54,77 +49,5 @@ public class SmartHomeSystem implements Serializable {
         devices.remove(name);
     }
     
-    // ===== Backward compatibility methods (delegate to services) =====
-    // These methods are kept for backward compatibility with existing controllers
-    
-    /**
-     * @deprecated Use DependencyContainer.getInstance().getBillingService().calculateTotalElectricityUsage()
-     */
-    @Deprecated
-    public int calculateTotalElectricityUsage() {
-        if (billingService == null) {
-            billingService = DependencyContainer.getInstance().getBillingService();
-        }
-        return billingService.calculateTotalElectricityUsage(devices.values());
-    }
-    
-    /**
-     * @deprecated Use calculateTotalElectricityUsage() instead
-     */
-    @Deprecated
-    public int getTotalElectricityUsage() {
-        return calculateTotalElectricityUsage();
-    }
-    
-    /**
-     * @deprecated Use DependencyContainer.getInstance().getBillingService().calculateTotalBill()
-     */
-    @Deprecated
-    public double getElectricityBill(double rate) {
-        if (billingService == null) {
-            billingService = DependencyContainer.getInstance().getBillingService();
-        }
-        return billingService.calculateTotalBill(devices.values(), rate);
-    }
-    
-    /**
-     * @deprecated Use simulation.getElectricityCost()
-     */
-    @Deprecated
-    public double getECost() {
-        return simulation.getElectricityCost();
-    }
-    
-    /**
-     * @deprecated Use DependencyContainer.getInstance().getLoggingService()
-     */
-    @Deprecated
-    public void addMessage(String log) {
-        if (loggingService == null) {
-            loggingService = DependencyContainer.getInstance().getLoggingService();
-        }
-        loggingService.addMessage(log);
-    }
-    
-    /**
-     * @deprecated Use DependencyContainer.getInstance().getLoggingService().getMessages()
-     */
-    @Deprecated
-    public java.util.ArrayList<String> getMessages() {
-        if (loggingService == null) {
-            loggingService = DependencyContainer.getInstance().getLoggingService();
-        }
-        return loggingService.getMessages();
-    }
-    
-    /**
-     * @deprecated Use DependencyContainer.getInstance().getLoggingService().clearMessages()
-     */
-    @Deprecated
-    public void deleteLog() {
-        if (loggingService == null) {
-            loggingService = DependencyContainer.getInstance().getLoggingService();
-        }
-        loggingService.clearMessages();
-    }
+    // Device and system management methods
 }

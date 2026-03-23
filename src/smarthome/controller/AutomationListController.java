@@ -8,7 +8,6 @@ package smarthome.controller;
  *
  * @author rlack
  */
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import smarthome.model.Device;
 import smarthome.model.*;
@@ -36,7 +35,7 @@ public class AutomationListController implements IInterfaceController {
     
     @Override
     public String getMenuContents() {
-        deviceList = new ArrayList();
+        deviceList = new ArrayList<>();
         StringBuilder menu = new StringBuilder();
         int i = 1;
         

@@ -49,28 +49,62 @@ public class DeviceAdderController implements IInterfaceController {
     @Override
     public void handleCommand(String command){
        
-      String name;
+        String name;
         
         switch(command){
-            case "1":name = controller.setDeviceProcedure(); system.addDevice(new Heater(name)); controller.setCurrentMessage(name + " was added\n"); system.addMessage("[" +LocalDateTime.now().format(controller.dateTimeFormatter) +"] "+ controller.getCurrentMessage()); //SaveLoadService.saveSystem(system);  
-                        break;
-            case "2":name = controller.setDeviceProcedure(); system.addDevice(new Light(name)); controller.setCurrentMessage(name + " was added\n"); system.addMessage("[" +LocalDateTime.now().format(controller.dateTimeFormatter) +"] "+ controller.getCurrentMessage()); //SaveLoadService.saveSystem(system); 
-                        break;
-            case "3":name = controller.setDeviceProcedure(); system.addDevice(new AirCon(name)); controller.setCurrentMessage(name + " was added\n"); system.addMessage("[" +LocalDateTime.now().format(controller.dateTimeFormatter) +"] "+ controller.getCurrentMessage()); //SaveLoadService.saveSystem(system);  
-                        break;
-            case "4":name = controller.setDeviceProcedure(); system.addDevice(new AlarmClock(name)); controller.setCurrentMessage(name + " was added\n"); system.addMessage("[" +LocalDateTime.now().format(controller.dateTimeFormatter) +"] "+ controller.getCurrentMessage()); //SaveLoadService.saveSystem(system); 
-                        break;
-            case "5":name = controller.setDeviceProcedure(); system.addDevice(new Door(name)); controller.setCurrentMessage(name + " was added\n"); system.addMessage("[" +LocalDateTime.now().format(controller.dateTimeFormatter) +"] "+ controller.getCurrentMessage()); //SaveLoadService.saveSystem(system);  
-                        break;
-            case "6":name = controller.setDeviceProcedure(); system.addDevice(new MusicPlayer(name)); controller.setCurrentMessage(name + " was added\n"); system.addMessage("[" +LocalDateTime.now().format(controller.dateTimeFormatter) +"] "+ controller.getCurrentMessage()); //SaveLoadService.saveSystem(system); 
-                        break;            
-            case "7":name = controller.setDeviceProcedure(); system.addDevice(new TV(name)); controller.setCurrentMessage(name + " was added\n"); system.addMessage("[" +LocalDateTime.now().format(controller.dateTimeFormatter) +"] "+ controller.getCurrentMessage()); //SaveLoadService.saveSystem(system);  
-                        break;
-            case "8":name = controller.setDeviceProcedure(); system.addDevice(new RobotCleaner(name)); controller.setCurrentMessage(name + " was added\n"); system.addMessage("[" +LocalDateTime.now().format(controller.dateTimeFormatter) +"] "+ controller.getCurrentMessage()); //SaveLoadService.saveSystem(system); 
-                        break;            
-            case "0": controller.showDashboard(); break;            
-                        
-            default: view.showInvalidOption();
+            case "1":
+                name = controller.setDeviceProcedure();
+                system.addDevice(new Heater(name));
+                controller.setCurrentMessage(name + " was added");
+                controller.addLogMessage("[" + LocalDateTime.now().format(controller.dateTimeFormatter) + "] " + name + " was added\n");
+                break;
+            case "2":
+                name = controller.setDeviceProcedure();
+                system.addDevice(new Light(name));
+                controller.setCurrentMessage(name + " was added");
+                controller.addLogMessage("[" + LocalDateTime.now().format(controller.dateTimeFormatter) + "] " + name + " was added\n");
+                break;
+            case "3":
+                name = controller.setDeviceProcedure();
+                system.addDevice(new AirCon(name));
+                controller.setCurrentMessage(name + " was added");
+                controller.addLogMessage("[" + LocalDateTime.now().format(controller.dateTimeFormatter) + "] " + name + " was added\n");
+                break;
+            case "4":
+                name = controller.setDeviceProcedure();
+                system.addDevice(new AlarmClock(name));
+                controller.setCurrentMessage(name + " was added");
+                controller.addLogMessage("[" + LocalDateTime.now().format(controller.dateTimeFormatter) + "] " + name + " was added\n");
+                break;
+            case "5":
+                name = controller.setDeviceProcedure();
+                system.addDevice(new Door(name));
+                controller.setCurrentMessage(name + " was added");
+                controller.addLogMessage("[" + LocalDateTime.now().format(controller.dateTimeFormatter) + "] " + name + " was added\n");
+                break;
+            case "6":
+                name = controller.setDeviceProcedure();
+                system.addDevice(new MusicPlayer(name));
+                controller.setCurrentMessage(name + " was added");
+                controller.addLogMessage("[" + LocalDateTime.now().format(controller.dateTimeFormatter) + "] " + name + " was added\n");
+                break;
+            case "7":
+                name = controller.setDeviceProcedure();
+                system.addDevice(new TV(name));
+                controller.setCurrentMessage(name + " was added");
+                controller.addLogMessage("[" + LocalDateTime.now().format(controller.dateTimeFormatter) + "] " + name + " was added\n");
+                break;
+            case "8":
+                name = controller.setDeviceProcedure();
+                system.addDevice(new RobotCleaner(name));
+                controller.setCurrentMessage(name + " was added");
+                controller.addLogMessage("[" + LocalDateTime.now().format(controller.dateTimeFormatter) + "] " + name + " was added\n");
+                break;
+            case "0":
+                controller.showDashboard();
+                break;
+            default:
+                view.showInvalidOption();
         }
         controller.showDashboard();
     }

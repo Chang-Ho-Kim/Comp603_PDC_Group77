@@ -1,7 +1,6 @@
 package smarthome.service;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Service for managing application logs and messages.
