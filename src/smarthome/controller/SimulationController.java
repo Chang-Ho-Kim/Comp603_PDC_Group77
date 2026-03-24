@@ -44,10 +44,24 @@ public class SimulationController implements IInterfaceController {
     @Override
     public void handleCommand(String command){
         switch(command){
-            case "1": simulation.setTemperature(simulation.getTemperature()+1); controller.setCurrentMessage("Temperature increased to " + simulation.getTemperature()); controller.addMessage("[" +LocalDateTime.now().format(controller.dateTimeFormatter) +"] " +"Temperature increased to "+simulation.getTemperature()+"\n"); controller.checkAutomation();break;
-            case "2": simulation.setTemperature(simulation.getTemperature()-1);controller.setCurrentMessage("Temperature decreased to " + simulation.getTemperature());controller.addMessage("[" +LocalDateTime.now().format(controller.dateTimeFormatter) +"] " +"Temperature decreased to "+simulation.getTemperature()+"\n"); controller.checkAutomation(); break;
-            case "0": controller.showDashboard();controller.checkAutomation(); return;
-            default: view.showInvalidOption();
+            case "1":
+                simulation.setTemperature(simulation.getTemperature()+1);
+                controller.setCurrentMessage("Temperature increased to " + simulation.getTemperature());
+                controller.addLogMessage("[" + LocalDateTime.now().format(controller.dateTimeFormatter) + "] " + "Temperature increased to " + simulation.getTemperature() + "\n");
+                controller.checkAutomation();
+                break;
+            case "2":
+                simulation.setTemperature(simulation.getTemperature()-1);
+                controller.setCurrentMessage("Temperature decreased to " + simulation.getTemperature());
+                controller.addLogMessage("[" + LocalDateTime.now().format(controller.dateTimeFormatter) + "] " + "Temperature decreased to " + simulation.getTemperature() + "\n");
+                controller.checkAutomation();
+                break;
+            case "0":
+                controller.showDashboard();
+                controller.checkAutomation();
+                return;
+            default:
+                view.showInvalidOption();
         }
     }
 

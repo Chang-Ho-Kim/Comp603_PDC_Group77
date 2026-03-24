@@ -4,15 +4,14 @@
  */
 package smarthome.model;
 
-import java.time.LocalDateTime;
 import java.time.LocalTime;
-
+import smarthome.controller.IInputHandler;
 
 /**
- *
- * @author rlack
+ * ScheduledDevice - A device that can be scheduled to turn on/off at specific times.
+ * Implements IDeviceUIHandler for Open/Closed Principle - UI can interact without knowing concrete type.
  */
-public abstract class ScheduledDevice extends Device implements ISchedulable{
+public abstract class ScheduledDevice extends Device implements ISchedulable {
     
     private LocalTime start;
     private LocalTime end;
@@ -52,7 +51,6 @@ public abstract class ScheduledDevice extends Device implements ISchedulable{
     @Override
     public void descheduledAction() {
         this.turnOff();
-        //this.setScheduleOn(false);
     }
     
     public LocalTime getStart() {
@@ -84,7 +82,6 @@ public abstract class ScheduledDevice extends Device implements ISchedulable{
         if(isScheduleOn()){
             checkInSchedule(time);
         }
-       
     }
 
     @Override
@@ -92,6 +89,52 @@ public abstract class ScheduledDevice extends Device implements ISchedulable{
         return isScheduleOn();
     }
     
-   
+    // IDeviceUIHandler implementation
+    @Override
+    public String getAdditionalMenuContent() {
+        StringBuilder content = new StringBuilder();
+        if (isScheduleOn()) {
+            content.append("\nSchedule Mode: On");
+            content.append("\nSchedule: ").append(start).append(" - ").append(end);
+        } else {
+            content.append("\nSchedule: Off");
+        }
+        return content.toString();
+    }
     
+    @Override
+    public String getAdditionalOptions() {
+        return "3. Set scheduled start time\n4. Set scheduled end time\n5. Set Schedule Mode On/Off\n";
+    }
+    
+    @Override
+    public boolean handleDeviceCommand(String command, IInputHandler handler) {
+        switch (command) {
+            case "3":
+                LocalTime original = getStart();
+                setStart(handler.setTime());
+                if(!getEnd().equals(LocalTime.of(0, 0, 0)) && getStart().isAfter(getEnd())) {
+                    setStart(original);
+                    return false; // Let controller handle error
+                }
+                return true;
+                
+            case "4":
+                LocalTime originalEnd = getEnd();
+                setEnd(handler.setTime());
+                if(!start.equals(LocalTime.of(0, 0, 0)) && getEnd().isBefore(getStart())) {
+                    setEnd(originalEnd);
+                    return false; // Let controller handle error
+                }
+                return true;
+                
+            case "5":
+                setScheduleOn(!isScheduleOn());
+                return true;
+                
+            default:
+                return false;
+        }
+    }
 }
+

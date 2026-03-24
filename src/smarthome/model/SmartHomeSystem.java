@@ -4,95 +4,50 @@
  */
 package smarthome.model;
 
-/**
- *
- * @author rlack
- */
-
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.time.Duration;
-import java.time.LocalDateTime;
 
+/**
+ * SmartHomeSystem - Core model managing devices and simulation settings.
+ * Now properly separated concerns:
+ * - Device management: addDevice, removeDevice, getDevice
+ * - Simulation settings access: getSimulation
+ * - Business logic delegated to services (billing, automation, logging)
+ */
 public class SmartHomeSystem implements Serializable {
 
     private HashMap<String, Device> devices;
     private SimulationSettings simulation;
-    private ArrayList<String> messages;
-    private int totalElectricityUsage;
-    private double electricityBill;
     
-    public SmartHomeSystem(){
+    public SmartHomeSystem() {
         devices = new HashMap<>();
         simulation = new SimulationSettings();
-        messages = new ArrayList();
-        totalElectricityUsage = 0;
     }
 
-    public Collection<Device> getAllDevices(){ return devices.values(); }
+    public Collection<Device> getAllDevices() {
+        return devices.values();
+    }
     
-    public Collection<String> getDeviceNames(){ return devices.keySet(); }
+    public Collection<String> getDeviceNames() {
+        return devices.keySet();
+    }
 
-    public Device getDevice(String id){ return devices.get(id); }
+    public Device getDevice(String id) {
+        return devices.get(id);
+    }
 
-    public SimulationSettings getSimulation(){ return simulation; }
+    public SimulationSettings getSimulation() {
+        return simulation;
+    }
     
-    public void addDevice(Device device){
+    public void addDevice(Device device) {
         devices.put(device.name, device);
     }
     
-    public void removeDevice(String name){
+    public void removeDevice(String name) {
         devices.remove(name);
     }
     
-    public void addMessage(String log){
-        messages.add(log);
-    }
-    
-    public ArrayList<String> getMessages(){
-        return messages;
-    }
-    
-    public void deleteLog(){
-        messages = new ArrayList();
-    }
-
-    public int getTotalElectricityUsage() {
-        return totalElectricityUsage;
-    }
-    
-     public void calculateTotalElectricityUsage() {
-        int i = 0;
-        for(Device d : devices.values()){
-            if(d.isOn()){
-                i+= d.getElectricityUsage();
-            }
-        }
-        totalElectricityUsage = i;
-        
-        if(totalElectricityUsage > simulation.getPowerThreshold()){
-            PowerSaverDevice.setThresholdOver(true);
-        }else{
-            PowerSaverDevice.setThresholdOver(false);
-        }
-    }
-    
-
-
-public double getElectricityBill(double rate) {
-    double totalCost = 0;
-
-    for (Device d : devices.values()) {
-        
-            totalCost += d.calculateCost(rate);
-        }
-    return totalCost;
-}
-
-public double getECost(){
-    return simulation.getElectricityCost();
-}
-    
+    // Device and system management methods
 }

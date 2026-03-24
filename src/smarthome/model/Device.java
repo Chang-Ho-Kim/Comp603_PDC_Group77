@@ -5,7 +5,6 @@
 package smarthome.model;
 
 import java.io.Serializable;
-import java.time.Duration;
 import java.time.LocalTime;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -16,7 +15,7 @@ import java.util.List;
  * @author rlack
  */
 
-public abstract class Device implements Serializable, ISwitchable {
+public abstract class Device implements Serializable, ISwitchable, IDeviceUIHandler {
     protected String name;
     protected boolean isOn;
     protected String type;
@@ -62,7 +61,7 @@ public abstract class Device implements Serializable, ISwitchable {
         
     }
 
-    public boolean isAutoOn(){
+    public boolean isAutoOn() {
         return false;
     }
     
@@ -70,26 +69,19 @@ public abstract class Device implements Serializable, ISwitchable {
         return usageHistory;
     }
     
-    public double calculateCost(double rate) {
-        double totalCost = 0;
-
-        for (UsageRecord r : usageHistory) {
-
-            if (r.getStart() == null) continue;
-
-            LocalDateTime endTime = (r.getEnd() == null)
-                    ? LocalDateTime.now()
-                    : r.getEnd();
-
-            long seconds = Math.max(0,
-                    Duration.between(r.getStart(), endTime).getSeconds());
-
-            double hours = seconds / 3600.0;
-
-            double powerWatts = getElectricityUsage(); // watts
-            totalCost += powerWatts * hours * rate;
-        }
-
-        return totalCost;
+    // IDeviceUIHandler default implementations
+    @Override
+    public String getAdditionalMenuContent() {
+        return ""; // Default: no additional menu content
+    }
+    
+    @Override
+    public String getAdditionalOptions() {
+        return ""; // Default: no additional options
+    }
+    
+    @Override
+    public boolean handleDeviceCommand(String command, smarthome.controller.IInputHandler handler) {
+        return false; // Default: device doesn't handle device-specific commands
     }
 }

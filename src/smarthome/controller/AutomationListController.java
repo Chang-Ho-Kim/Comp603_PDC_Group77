@@ -8,7 +8,6 @@ package smarthome.controller;
  *
  * @author rlack
  */
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import smarthome.model.Device;
 import smarthome.model.*;
@@ -36,7 +35,7 @@ public class AutomationListController implements IInterfaceController {
     
     @Override
     public String getMenuContents() {
-        deviceList = new ArrayList();
+        deviceList = new ArrayList<>();
         StringBuilder menu = new StringBuilder();
         int i = 1;
         
@@ -114,15 +113,11 @@ public class AutomationListController implements IInterfaceController {
 
     @Override
     public void handleCommand(String command) {
-       switch(command){
-            case "1": dType = automationType.SCHEDULER; view.renderView(controller); break;
-                      
-            case "2": dType = automationType.SENSOR; view.renderView(controller);break;
-            
-            
-            case "3": dType = automationType.POWERSAVER; view.renderView(controller);break;
-            case "4": dType = automationType.ALL; view.renderView(controller);break;
-                      
+        switch(command){
+            case "1": dType = automationType.SCHEDULER; break;
+            case "2": dType = automationType.SENSOR; break;
+            case "3": dType = automationType.POWERSAVER; break;
+            case "4": dType = automationType.ALL; break;
             case "0": controller.showDashboard(); return;
             default: view.showInvalidOption();
         }

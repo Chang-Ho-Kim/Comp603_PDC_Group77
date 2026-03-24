@@ -1,35 +1,27 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package smarthome.view;
 
 /**
- *
- * @author rlack
+ * SmartHomeCLIView - CLI implementation of View interface.
+ * Receives ViewData (DTOs) and renders to console.
+ * No dependency on Controller or business logic.
  */
+public class SmartHomeCLIView implements View {
 
-import java.time.LocalDateTime;
-import smarthome.model.Device;
-import smarthome.model.SimulationSettings;
-
-import java.util.Collection;
-import smarthome.controller.CentralController;
-
-public class SmartHomeCLIView {
-
-    public void renderView(CentralController sm){
+    @Override
+    public void renderView(ViewData data) {
         String message = "Blexb: ";
-        message += sm.getCurrentMessage();
-        String menu = sm.getCurrentInterface().getMenuContents();
-        String options = sm.getCurrentInterface().getOptionsContents();
+        message += data.getMessage();
+        String menu = data.getMenuContents();
+        String options = data.getOptionsContents();
+        String formattedDateTime = data.getFormattedDateTime();
         
-        System.out.println("\n\n                  "+LocalDateTime.now().format(sm.getFormatter()));
+        System.out.println("\n\n                  " + formattedDateTime);
         System.out.println(" ____                       _     _   _                      ");
         System.out.println("/ ___| _ __ ___   __ _ _ __| |_  | | | | ___  _ __ ___   ___ ");
         System.out.println("\\___ \\| '_ ` _ \\ / _` | '__| __| | |_| |/ _ \\| '_ ` _ \\ / _ \\");
         System.out.println(" ___) | | | | | | (_| | |  | |_  |  _  | (_) | | | | | |  __/");
         System.out.println("|____/|_| |_| |_|\\__,_|_|   \\__| |_| |_|\\___/|_| |_| |_|\\___|");
+        
         int boxWidth = 62;
         String lineSeparator = "+" + "-".repeat(boxWidth - 2) + "+";
 
@@ -59,7 +51,8 @@ public class SmartHomeCLIView {
         System.out.println(box.toString());
     }
 
-    public void showInvalidOption(){
+    @Override
+    public void showInvalidOption() {
         System.out.println("Invalid option. Try again.");
     }
 }
