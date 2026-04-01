@@ -127,6 +127,10 @@ public class DashboardController implements IInterfaceController {
         if(command.equalsIgnoreCase("q")){
             controller.exit();
         }
+        if(command.equalsIgnoreCase("")){
+            controller.renderCurrentScreen();
+            return;
+        }
         try{
             int index = Integer.parseInt(command);
             Device device = deviceList.get(index-1);

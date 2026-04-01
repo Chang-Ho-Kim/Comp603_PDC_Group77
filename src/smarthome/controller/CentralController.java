@@ -114,7 +114,7 @@ public class CentralController implements ICentralController, IMessageManager, I
         }
     }
 
-    private void renderCurrentScreen() {
+    public void renderCurrentScreen() {
         String menuContent = currentInterface.getMenuContents();
         String optionsContent = currentInterface.getOptionsContents();
         String formattedDateTime = dateTimeFormatter.format(LocalDateTime.now());

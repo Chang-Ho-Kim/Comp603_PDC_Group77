@@ -76,6 +76,9 @@ public class DeviceDetailController implements IInterfaceController {
                     controller.setCurrentMessage("Failed to update " + device.getName());
                 }
                 break;
+            case "":
+                controller.renderCurrentScreen();
+                return;
             case "0":
                 controller.showDashboard();
                 return;

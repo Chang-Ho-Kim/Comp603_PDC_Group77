@@ -19,29 +19,31 @@ public class SimpleBillingService implements IBillingService {
     }
     
     @Override
-    public double calculateDeviceBill(Device device, double electricityCostPerWattHour) {
-        double totalCost = 0;
-        
-        for (UsageRecord record : device.getUsageHistory()) {
-            if (record.getStart() == null) {
-                continue;
-            }
-            
-            LocalDateTime endTime = (record.getEnd() == null) 
-                ? LocalDateTime.now() 
-                : record.getEnd();
-            
-            long durationMinutes = java.time.temporal.ChronoUnit.MINUTES
-                    .between(record.getStart(), endTime);
-            
-            double hoursDuration = durationMinutes / 60.0;
-            double deviceCost = (device.getElectricityUsage() * hoursDuration) * electricityCostPerWattHour;
-            
-            totalCost += deviceCost;
+public double calculateDeviceBill(Device device, double electricityCostPerWattHour) {
+    double totalCost = 0;
+    
+    for (UsageRecord record : device.getUsageHistory()) {
+        if (record.getStart() == null) {
+            continue;
         }
         
-        return totalCost;
+        LocalDateTime endTime = (record.getEnd() == null) 
+            ? LocalDateTime.now() 
+            : record.getEnd();
+        
+        long durationSeconds = java.time.temporal.ChronoUnit.SECONDS
+                .between(record.getStart(), endTime);
+        
+        double hoursDuration = durationSeconds / 3600.0;
+        
+        double deviceCost = (device.getElectricityUsage() * hoursDuration) 
+                * electricityCostPerWattHour;
+        
+        totalCost += deviceCost;
     }
+    
+    return totalCost;
+}
     
     @Override
     public int calculateTotalElectricityUsage(Collection<Device> devices) {
