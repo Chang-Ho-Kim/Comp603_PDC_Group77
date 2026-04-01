@@ -28,6 +28,10 @@ public class PowerSaverDevice extends Device implements IPowerSaveable {
     
     @Override
     public void checkAutomation(int temp, LocalTime time) {
+        if (thresholdManager == null) {
+            thresholdManager = DependencyContainer.getInstance().getThresholdManager();
+        }
+
         if (thresholdManager.isThresholdExceeded()) {
             this.turnOff();
         }
