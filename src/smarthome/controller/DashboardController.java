@@ -55,8 +55,12 @@ public class DashboardController implements IInterfaceController {
             system.getAllDevices(),
             system.getSimulation().getElectricityCost()
         );
+        double removedDevicesAccruedBill = billingService.calculateTotalBill(
+            system.getAllRemovedDevices(),
+            system.getSimulation().getElectricityCost()
+        );
         DecimalFormat df = new DecimalFormat("0.000000000");
-        menu.append("Current Total Bill: $").append(df.format(totalBill));
+        menu.append("Current Total Bill: $").append(df.format(totalBill+removedDevicesAccruedBill));
         return menu.toString();
     }
     

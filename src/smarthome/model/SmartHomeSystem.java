@@ -19,10 +19,12 @@ public class SmartHomeSystem implements Serializable {
 
     private HashMap<String, Device> devices;
     private SimulationSettings simulation;
+    private HashMap<String, Device> removedDevices;
     
     public SmartHomeSystem() {
         devices = new HashMap<>();
         simulation = new SimulationSettings();
+        removedDevices = new HashMap<>();
     }
 
     public Collection<Device> getAllDevices() {
@@ -45,8 +47,27 @@ public class SmartHomeSystem implements Serializable {
         devices.put(device.name, device);
     }
     
+    private String getUniqueName(String name) {
+        while (removedDevices.containsKey(name)) {
+            name += "V";
+        }
+        return name;
+    }
+    
     public void removeDevice(String name) {
+        String uniqueName = getUniqueName(name);
+        removedDevices.put(uniqueName, getDevice(name));
+
+        devices.get(name).turnOff();
         devices.remove(name);
+    }
+    
+    public Device getRemovedDevice(String id) {
+        return removedDevices.get(id);
+    }
+    
+     public Collection<Device> getAllRemovedDevices() {
+        return removedDevices.values();
     }
     
     // Device and system management methods
