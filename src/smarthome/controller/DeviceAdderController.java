@@ -12,15 +12,15 @@ package smarthome.controller;
 import java.time.LocalDateTime;
 import smarthome.model.*;
 import smarthome.model.SmartHomeSystem;
-import smarthome.view.SmartHomeCLIView;
+import smarthome.view.SmartHomeGUIViewAIRough;
 
 public class DeviceAdderController implements IInterfaceController {
 
     private CentralController controller;
     private SmartHomeSystem system;
-    private SmartHomeCLIView view;
+    private SmartHomeGUIViewAIRough view;
    
-    public DeviceAdderController(CentralController controller, SmartHomeSystem system, SmartHomeCLIView view){
+    public DeviceAdderController(CentralController controller, SmartHomeSystem system, SmartHomeGUIViewAIRough view){
         this.controller = controller;
         this.system = system;
         this.view = view;

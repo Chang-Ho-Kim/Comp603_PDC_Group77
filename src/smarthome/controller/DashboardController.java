@@ -15,18 +15,18 @@ import smarthome.model.Device;
 import smarthome.model.SmartHomeSystem;
 import smarthome.service.DependencyContainer;
 import smarthome.service.IBillingService;
-import smarthome.view.SmartHomeCLIView;
+import smarthome.view.SmartHomeGUIViewAIRough;
 import java.util.ArrayList;
 
 public class DashboardController implements IInterfaceController {
 
     private CentralController controller;
     private SmartHomeSystem system;
-    private SmartHomeCLIView view;
+    private SmartHomeGUIViewAIRough view;
     private ArrayList<Device> deviceList;
     private IBillingService billingService;
     
-    public DashboardController(CentralController controller, SmartHomeSystem system, SmartHomeCLIView view){
+    public DashboardController(CentralController controller, SmartHomeSystem system, SmartHomeGUIViewAIRough view){
         this.controller = controller;
         this.system = system;
         this.view = view;

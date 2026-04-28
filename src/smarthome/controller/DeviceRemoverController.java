@@ -12,7 +12,7 @@ package smarthome.controller;
 import java.time.LocalDateTime;
 import smarthome.model.Device;
 import smarthome.model.SmartHomeSystem;
-import smarthome.view.SmartHomeCLIView;
+import smarthome.view.SmartHomeGUIViewAIRough;
 import java.util.ArrayList;
 
 public class DeviceRemoverController implements IInterfaceController {
@@ -20,7 +20,7 @@ public class DeviceRemoverController implements IInterfaceController {
     private CentralController controller;
     private SmartHomeSystem system;
    
-    public DeviceRemoverController(CentralController controller, SmartHomeSystem system, SmartHomeCLIView view){
+    public DeviceRemoverController(CentralController controller, SmartHomeSystem system, SmartHomeGUIViewAIRough view){
         this.controller = controller;
         this.system = system;
     }

@@ -12,19 +12,19 @@ import java.util.ArrayList;
 import smarthome.model.Device;
 import smarthome.model.*;
 import smarthome.model.SmartHomeSystem;
-import smarthome.view.SmartHomeCLIView;
+import smarthome.view.SmartHomeGUIViewAIRough;
 
 public class AutomationListController implements IInterfaceController {
     private CentralController controller;
     private SmartHomeSystem system;
-    private SmartHomeCLIView view;
+    private SmartHomeGUIViewAIRough view;
     
     private enum automationType{ALL, POWERSAVER, SENSOR, SCHEDULER};
     private automationType dType;
     
     private ArrayList<Device> deviceList;
     
-    public AutomationListController(CentralController controller, SmartHomeSystem system, SmartHomeCLIView view){
+    public AutomationListController(CentralController controller, SmartHomeSystem system, SmartHomeGUIViewAIRough view){
         this.controller = controller;
         this.system = system;
         this.view = view;

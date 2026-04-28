@@ -12,15 +12,15 @@ package smarthome.controller;
 import java.time.LocalDateTime;
 import smarthome.model.SmartHomeSystem;
 import smarthome.model.SimulationSettings;
-import smarthome.view.SmartHomeCLIView;
+import smarthome.view.SmartHomeGUIViewAIRough;
 
 public class SimulationController implements IInterfaceController {
 
     private CentralController controller;
     private SimulationSettings simulation;
-    private SmartHomeCLIView view;
+    private SmartHomeGUIViewAIRough view;
 
-    public SimulationController(CentralController controller, SmartHomeSystem system, SmartHomeCLIView view){
+    public SimulationController(CentralController controller, SmartHomeSystem system, SmartHomeGUIViewAIRough view){
         this.controller = controller;
         this.simulation = system.getSimulation();
         this.view = view;

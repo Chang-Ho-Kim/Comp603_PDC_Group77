@@ -10,16 +10,16 @@ package smarthome.controller;
  */
 
 import smarthome.model.SmartHomeSystem;
-import smarthome.view.SmartHomeCLIView;
+import smarthome.view.SmartHomeGUIViewAIRough;
 import java.io.FileWriter;
 import java.io.IOException;
 
 public class LogController implements IInterfaceController {
 
     private CentralController controller;
-    private SmartHomeCLIView view;
+    private SmartHomeGUIViewAIRough view;
    
-    public LogController(CentralController controller, SmartHomeSystem system, SmartHomeCLIView view){
+    public LogController(CentralController controller, SmartHomeSystem system, SmartHomeGUIViewAIRough view){
         this.controller = controller;
         this.view = view;
     }

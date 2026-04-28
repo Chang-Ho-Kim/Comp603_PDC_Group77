@@ -127,7 +127,7 @@ public class CentralController implements ICentralController, IMessageManager, I
     @Override
     public void showDashboard() {
         if (dashboardController == null) {
-            dashboardController = new DashboardController(this, system, (smarthome.view.SmartHomeCLIView) view);
+            dashboardController = new DashboardController(this, system, (smarthome.view.SmartHomeGUIViewAIRough) view);
         }
         currentInterface = dashboardController;
     }
@@ -135,7 +135,7 @@ public class CentralController implements ICentralController, IMessageManager, I
     @Override
     public void showDevice(Device device) {
         if (deviceController == null) {
-            deviceController = new DeviceDetailController(this, system, (smarthome.view.SmartHomeCLIView) view);
+            deviceController = new DeviceDetailController(this, system, (smarthome.view.SmartHomeGUIViewAIRough) view);
         }
         deviceController.setDevice(device);
         currentInterface = deviceController;
@@ -144,7 +144,7 @@ public class CentralController implements ICentralController, IMessageManager, I
     @Override
     public void showSimulation() {
         if (simulationController == null) {
-            simulationController = new SimulationController(this, system, (smarthome.view.SmartHomeCLIView) view);
+            simulationController = new SimulationController(this, system, (smarthome.view.SmartHomeGUIViewAIRough) view);
         }
         currentInterface = simulationController;
     }
@@ -152,7 +152,7 @@ public class CentralController implements ICentralController, IMessageManager, I
     @Override
     public void showLog() {
         if (logController == null) {
-            logController = new LogController(this, system, (smarthome.view.SmartHomeCLIView) view);
+            logController = new LogController(this, system, (smarthome.view.SmartHomeGUIViewAIRough) view);
         }
         currentInterface = logController;
     }
@@ -160,7 +160,7 @@ public class CentralController implements ICentralController, IMessageManager, I
     @Override
     public void showDeviceAdder() {
         if (deviceAdderController == null) {
-            deviceAdderController = new DeviceAdderController(this, system, (smarthome.view.SmartHomeCLIView) view);
+            deviceAdderController = new DeviceAdderController(this, system, (smarthome.view.SmartHomeGUIViewAIRough) view);
         }
         currentInterface = deviceAdderController;
     }
@@ -168,7 +168,7 @@ public class CentralController implements ICentralController, IMessageManager, I
     @Override
     public void showDeviceRemover() {
         if (deviceRemoverController == null) {
-            deviceRemoverController = new DeviceRemoverController(this, system, (smarthome.view.SmartHomeCLIView) view);
+            deviceRemoverController = new DeviceRemoverController(this, system, (smarthome.view.SmartHomeGUIViewAIRough) view);
         }
         currentInterface = deviceRemoverController;
     }
@@ -176,7 +176,7 @@ public class CentralController implements ICentralController, IMessageManager, I
     @Override
     public void showAutomation() {
         if (automationController == null) {
-            automationController = new AutomationListController(this, system, (smarthome.view.SmartHomeCLIView) view);
+            automationController = new AutomationListController(this, system, (smarthome.view.SmartHomeGUIViewAIRough) view);
         }
         currentInterface = automationController;
     }

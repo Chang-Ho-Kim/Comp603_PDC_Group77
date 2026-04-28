@@ -6,7 +6,7 @@ import smarthome.model.Device;
 import smarthome.model.SmartHomeSystem;
 import smarthome.service.DependencyContainer;
 import smarthome.service.IBillingService;
-import smarthome.view.SmartHomeCLIView;
+import smarthome.view.SmartHomeGUIViewAIRough;
 
 /**
  * DeviceDetailController - Shows device details and handles device-specific commands.
@@ -16,12 +16,12 @@ public class DeviceDetailController implements IInterfaceController {
 
     private CentralController controller;
     private SmartHomeSystem system;
-    private SmartHomeCLIView view;
+    private SmartHomeGUIViewAIRough view;
     private Device device;
     private IBillingService billingService;
     private DecimalFormat currencyFormatter = new DecimalFormat("0.000000000");
 
-    public DeviceDetailController(CentralController controller, SmartHomeSystem system, SmartHomeCLIView view) {
+    public DeviceDetailController(CentralController controller, SmartHomeSystem system, SmartHomeGUIViewAIRough view) {
         this.controller = controller;
         this.system = system;
         this.view = view;
