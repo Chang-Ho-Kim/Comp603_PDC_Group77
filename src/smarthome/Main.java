@@ -2,7 +2,7 @@ package smarthome;
 
 import smarthome.controller.CentralController;
 import smarthome.model.SmartHomeSystem;
-import smarthome.view.SmartHomeGUIViewAIRough;
+import smarthome.view.SmartHomeGUIView;
 import smarthome.view.View;
 import smarthome.persistence.SaveLoadService;
 
@@ -14,7 +14,7 @@ public class Main {
         SmartHomeSystem system = SaveLoadService.loadSystem();
 
         // Create view (implements View interface)
-        View view = new SmartHomeGUIViewAIRough();
+        View view = new SmartHomeGUIView();
       
         
         // Create controller
