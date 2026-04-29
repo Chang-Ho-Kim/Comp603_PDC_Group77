@@ -1,40 +1,34 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package smarthome.controller;
 
-/**
- *
- * @author rlack
- */
-
 import smarthome.model.SmartHomeSystem;
-import smarthome.view.SmartHomeGUIViewAIRough;
+import smarthome.view.SmartHomeGUIView;
 import java.io.FileWriter;
 import java.io.IOException;
 
 public class LogController implements IInterfaceController {
 
     private CentralController controller;
-    private SmartHomeGUIViewAIRough view;
+    private SmartHomeGUIView view;
    
-    public LogController(CentralController controller, SmartHomeSystem system, SmartHomeGUIViewAIRough view){
+    public LogController(CentralController controller, SmartHomeSystem system, SmartHomeGUIView view){
         this.controller = controller;
         this.view = view;
     }
 
-  
     @Override
     public String getMenuContents(){
-        return controller.getLoggingService().getMessages().toString();
+        String logs = controller.getLoggingService().getMessages().toString();
+        if (logs.isEmpty()) {
+            return "📋 === APPLICATION LOG ===\n\nNo logs yet.";
+        }
+        return "📋 === APPLICATION LOG ===\n\n" + logs;
     }
 
     @Override
     public String getOptionsContents() {
-        return "1. Delete Log\n"+
-                "2. Export Log\n"+
-                "                                    (0. Back to Dashboard)";
+        return "1. Delete Log\n" +
+                "2. Export Log\n" +
+                "0. Back to Dashboard";
     }
 
     @Override
@@ -44,15 +38,19 @@ public class LogController implements IInterfaceController {
                 controller.showDashboard();
                 return;
             case "1":
-                controller.getLoggingService().clearMessages();
-                controller.setCurrentMessage("Log was deleted");
+                if(view.showConfirmDialog("Delete all logs?", "Confirm")) {
+                    controller.getLoggingService().clearMessages();
+                    controller.setCurrentMessage("✅ Log deleted");
+                } else {
+                    controller.setCurrentMessage("❌ Deletion cancelled");
+                }
                 return;
             case "2":
                 try (FileWriter writer = new FileWriter("Log.txt")) {
                     writer.write(controller.getLoggingService().getMessages().toString());
-                    controller.setCurrentMessage("Log successfully exported to Log.txt");
+                    controller.setCurrentMessage("✅ Log exported to Log.txt");
                 } catch (IOException e) {
-                    controller.setCurrentMessage("Failed to export...");
+                    controller.setCurrentMessage("❌ Export failed: " + e.getMessage());
                 }
                 return;
             default:
