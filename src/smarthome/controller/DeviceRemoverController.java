@@ -12,7 +12,7 @@ public class DeviceRemoverController implements IInterfaceController {
     private SmartHomeSystem system;
     private SmartHomeGUIView view;
     private ArrayList<Device> deviceList;
-   
+
     public DeviceRemoverController(CentralController controller, SmartHomeSystem system, SmartHomeGUIView view){
         this.controller = controller;
         this.system = system;
@@ -22,54 +22,101 @@ public class DeviceRemoverController implements IInterfaceController {
     @Override
     public String getMenuContents(){
         deviceList = new ArrayList<>(system.getAllDevices());
+
         StringBuilder menu = new StringBuilder("🗑️ === REMOVE DEVICE ===\n\n");
 
         if (deviceList.isEmpty()) {
             menu.append("No devices to remove.\n");
         } else {
+            menu.append("Select a device to remove:\n\n");
             int i = 1;
             for (Device d : deviceList) {
-                menu.append(i).append(". ").append(d.getName())
-                    .append(" [").append(d.isOn() ? "✅ ON" : "⚫ OFF").append("]\n");
+                menu.append(i)
+                    .append(". ")
+                    .append(d.getName())
+                    .append(" [")
+                    .append(d.isOn() ? "✅ ON" : "⚫ OFF")
+                    .append("]\n");
                 i++;
             }
         }
+
         return menu.toString();
     }
 
+    // 🔧 FIX: GUI now generates clickable buttons
     @Override
     public String getOptionsContents() {
-        return "Select device by number (1-" + system.getAllDevices().size() + ") or 0 to cancel";
+
+        deviceList = new ArrayList<>(system.getAllDevices());
+
+        if (deviceList.isEmpty()) {
+            return "0. Back to Dashboard";
+        }
+
+        StringBuilder options = new StringBuilder();
+
+        int i = 1;
+        for (Device d : deviceList) {
+            options.append(i)
+                    .append(". Remove ")
+                    .append(d.getName())
+                    .append("\n");
+            i++;
+        }
+
+        options.append("0. Cancel");
+
+        return options.toString();
     }
 
     @Override
     public void handleCommand(String command){
-        if(command.equalsIgnoreCase("0")){
+
+        if (command.equals("0")) {
+            controller.setCurrentMessage("↩️ Removal cancelled");
             controller.showDashboard();
             return;
         }
-        
+
         try {
             int index = Integer.parseInt(command);
+
+            deviceList = new ArrayList<>(system.getAllDevices());
+
             if (index > 0 && index <= deviceList.size()) {
+
                 Device device = deviceList.get(index - 1);
                 String deviceName = device.getName();
-                
-                if(view.showConfirmDialog("Remove " + deviceName + "?", "Confirm Removal")) {
+
+                boolean confirm = view.showConfirmDialog(
+                        "Remove " + deviceName + "?",
+                        "Confirm Removal"
+                );
+
+                if (confirm) {
                     system.removeDevice(deviceName);
+
                     controller.setCurrentMessage("✅ " + deviceName + " removed");
-                    controller.addLogMessage("[" + LocalDateTime.now().format(controller.dateTimeFormatter) + "] " + deviceName + " was removed\n");
+
+                    controller.addLogMessage(
+                        "[" + LocalDateTime.now().format(controller.dateTimeFormatter) + "] "
+                        + deviceName + " was removed\n"
+                    );
                 } else {
                     controller.setCurrentMessage("❌ Removal cancelled");
                 }
+
             } else {
                 view.showInvalidOption();
                 controller.setCurrentMessage("❌ Invalid selection");
             }
+
         } catch (NumberFormatException e) {
             view.showInvalidOption();
             controller.setCurrentMessage("❌ Invalid input");
         }
+
         controller.showDashboard();
     }
 }

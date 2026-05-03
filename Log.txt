@@ -1,2 +1,5 @@
-[[2026-04-02 12:12:32] Smart Home Simulator Started
+[[2026-05-03 19:24:16] Smart Home Simulator Started
+, [2026-05-03 19:24:22] air con was removed
+, [2026-05-03 19:24:32] All devices turned on
+, [2026-05-03 19:24:35] All devices turned off
 ]

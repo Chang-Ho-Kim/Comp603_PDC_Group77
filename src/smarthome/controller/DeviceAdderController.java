@@ -19,82 +19,97 @@ public class DeviceAdderController implements IInterfaceController {
 
     @Override
     public String getMenuContents(){
-       return "➕ === ADD DEVICE ===\n\nSelect device type:\n\n" +
-      "1. 🔥 Heater\n" +
-      "2. 💡 Light\n" +
-      "3. ❄️ Air Conditioner\n" +
-      "4. ⏰ Alarm Clock\n" +
-      "5. 🚪 Door\n" +
-      "6. 🎵 Music Player\n" +
-      "7. 📺 Television\n" +
-      "8. 🤖 Robot Cleaner\n";
+        return "➕ === ADD DEVICE ===\n\nSelect device type:\n\n" +
+                "1. 🔥 Heater\n" +
+                "2. 💡 Light\n" +
+                "3. ❄️ Air Conditioner\n" +
+                "4. ⏰ Alarm Clock\n" +
+                "5. 🚪 Door\n" +
+                "6. 🎵 Music Player\n" +
+                "7. 📺 Television\n" +
+                "8. 🤖 Robot Cleaner\n";
     }
-    
+
+    // 🔧 FIX: Now GUI can generate buttons from this
     @Override
     public String getOptionsContents() {
-        return "Select device type (1-8) or 0 to cancel";
+        return ""
+                + "1. Heater\n"
+                + "2. Light\n"
+                + "3. Air Conditioner\n"
+                + "4. Alarm Clock\n"
+                + "5. Door\n"
+                + "6. Music Player\n"
+                + "7. Television\n"
+                + "8. Robot Cleaner\n"
+                + "0. Cancel";
     }
 
     @Override
     public void handleCommand(String command){
+
         String name;
-        
+
         switch(command){
+
             case "1":
                 name = controller.setDeviceProcedure();
                 system.addDevice(new Heater(name));
-                controller.setCurrentMessage("✅ " + name + " added");
-                controller.addLogMessage("[" + LocalDateTime.now().format(controller.dateTimeFormatter) + "] " + name + " was added\n");
                 break;
+
             case "2":
                 name = controller.setDeviceProcedure();
                 system.addDevice(new Light(name));
-                controller.setCurrentMessage("✅ " + name + " added");
-                controller.addLogMessage("[" + LocalDateTime.now().format(controller.dateTimeFormatter) + "] " + name + " was added\n");
                 break;
+
             case "3":
                 name = controller.setDeviceProcedure();
                 system.addDevice(new AirCon(name));
-                controller.setCurrentMessage("✅ " + name + " added");
-                controller.addLogMessage("[" + LocalDateTime.now().format(controller.dateTimeFormatter) + "] " + name + " was added\n");
                 break;
+
             case "4":
                 name = controller.setDeviceProcedure();
                 system.addDevice(new AlarmClock(name));
-                controller.setCurrentMessage("✅ " + name + " added");
-                controller.addLogMessage("[" + LocalDateTime.now().format(controller.dateTimeFormatter) + "] " + name + " was added\n");
                 break;
+
             case "5":
                 name = controller.setDeviceProcedure();
                 system.addDevice(new Door(name));
-                controller.setCurrentMessage("✅ " + name + " added");
-                controller.addLogMessage("[" + LocalDateTime.now().format(controller.dateTimeFormatter) + "] " + name + " was added\n");
                 break;
+
             case "6":
                 name = controller.setDeviceProcedure();
                 system.addDevice(new MusicPlayer(name));
-                controller.setCurrentMessage("✅ " + name + " added");
-                controller.addLogMessage("[" + LocalDateTime.now().format(controller.dateTimeFormatter) + "] " + name + " was added\n");
                 break;
+
             case "7":
                 name = controller.setDeviceProcedure();
                 system.addDevice(new TV(name));
-                controller.setCurrentMessage("✅ " + name + " added");
-                controller.addLogMessage("[" + LocalDateTime.now().format(controller.dateTimeFormatter) + "] " + name + " was added\n");
                 break;
+
             case "8":
                 name = controller.setDeviceProcedure();
                 system.addDevice(new RobotCleaner(name));
-                controller.setCurrentMessage("✅ " + name + " added");
-                controller.addLogMessage("[" + LocalDateTime.now().format(controller.dateTimeFormatter) + "] " + name + " was added\n");
                 break;
+
             case "0":
+                controller.setCurrentMessage("🚫 Device addition cancelled");
                 controller.showDashboard();
                 return;
+
             default:
                 view.showInvalidOption();
                 return;
         }
+
+        // ✅ shared success handling (no duplication)
+        controller.setCurrentMessage("✅ " + name + " added");
+
+        controller.addLogMessage(
+            "[" + LocalDateTime.now().format(controller.dateTimeFormatter) + "] "
+            + name + " was added\n"
+        );
+
         controller.showDashboard();
     }
 }
