@@ -1,69 +1,122 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package smarthome.controller;
-
-/**
- *
- * @author rlack
- */
 
 import java.time.LocalDateTime;
 import smarthome.model.Device;
 import smarthome.model.SmartHomeSystem;
-import smarthome.view.SmartHomeCLIView;
+import smarthome.view.SmartHomeGUIView;
 import java.util.ArrayList;
 
 public class DeviceRemoverController implements IInterfaceController {
 
     private CentralController controller;
     private SmartHomeSystem system;
-   
-    public DeviceRemoverController(CentralController controller, SmartHomeSystem system, SmartHomeCLIView view){
+    private SmartHomeGUIView view;
+    private ArrayList<Device> deviceList;
+
+    public DeviceRemoverController(CentralController controller, SmartHomeSystem system, SmartHomeGUIView view){
         this.controller = controller;
         this.system = system;
+        this.view = view;
     }
 
-  
     @Override
     public String getMenuContents(){
-        StringBuilder menu = new StringBuilder();
+        deviceList = new ArrayList<>(system.getAllDevices());
 
-        int i = 1;
-        ArrayList<Device> deviceList = new ArrayList<>(system.getAllDevices());
-        for (Device d : deviceList) {
-            menu.append(i)
-                .append(". ")
-                .append(d.getName())
-                .append(" [")
-                .append(d.isOn() ? "ON" : "OFF")
-                .append("]\n");
-            i++;
+        StringBuilder menu = new StringBuilder("🗑️ === REMOVE DEVICE ===\n\n");
+
+        if (deviceList.isEmpty()) {
+            menu.append("No devices to remove.\n");
+        } else {
+            menu.append("Select a device to remove:\n\n");
+            int i = 1;
+            for (Device d : deviceList) {
+                menu.append(i)
+                    .append(". ")
+                    .append(d.getName())
+                    .append(" [")
+                    .append(d.isOn() ? "✅ ON" : "⚫ OFF")
+                    .append("]\n");
+                i++;
+            }
         }
+
         return menu.toString();
     }
 
+    // 🔧 FIX: GUI now generates clickable buttons
     @Override
     public String getOptionsContents() {
-        return "What is the name of the device would you like to remove?:\n"
-                + "\n                          (Type back to return to dashboard)";
+
+        deviceList = new ArrayList<>(system.getAllDevices());
+
+        if (deviceList.isEmpty()) {
+            return "0. Back to Dashboard";
+        }
+
+        StringBuilder options = new StringBuilder();
+
+        int i = 1;
+        for (Device d : deviceList) {
+            options.append(i)
+                    .append(". Remove ")
+                    .append(d.getName())
+                    .append("\n");
+            i++;
+        }
+
+        options.append("0. Cancel");
+
+        return options.toString();
     }
 
     @Override
     public void handleCommand(String command){
-        if(system.getDeviceNames().contains(command)){
-            system.removeDevice(command);
-            controller.setCurrentMessage(command + " was removed");
-            controller.addLogMessage("[" + LocalDateTime.now().format(controller.dateTimeFormatter) + "] " + command + " was removed\n");
+
+        if (command.equals("0")) {
+            controller.setCurrentMessage("↩️ Removal cancelled");
             controller.showDashboard();
+            return;
         }
-        else if(command.equals("back")){
-            System.out.println("Back to Dashboard");
-            controller.showDashboard();
+
+        try {
+            int index = Integer.parseInt(command);
+
+            deviceList = new ArrayList<>(system.getAllDevices());
+
+            if (index > 0 && index <= deviceList.size()) {
+
+                Device device = deviceList.get(index - 1);
+                String deviceName = device.getName();
+
+                boolean confirm = view.showConfirmDialog(
+                        "Remove " + deviceName + "?",
+                        "Confirm Removal"
+                );
+
+                if (confirm) {
+                    system.removeDevice(deviceName);
+
+                    controller.setCurrentMessage("✅ " + deviceName + " removed");
+
+                    controller.addLogMessage(
+                        "[" + LocalDateTime.now().format(controller.dateTimeFormatter) + "] "
+                        + deviceName + " was removed\n"
+                    );
+                } else {
+                    controller.setCurrentMessage("❌ Removal cancelled");
+                }
+
+            } else {
+                view.showInvalidOption();
+                controller.setCurrentMessage("❌ Invalid selection");
+            }
+
+        } catch (NumberFormatException e) {
+            view.showInvalidOption();
+            controller.setCurrentMessage("❌ Invalid input");
         }
-        else{
-            System.out.println(command + " does not exist in the system");
-        }
+
+        controller.showDashboard();
     }
 }

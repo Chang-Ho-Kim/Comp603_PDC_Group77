@@ -6,22 +6,21 @@ import smarthome.model.Device;
 import smarthome.model.SmartHomeSystem;
 import smarthome.service.DependencyContainer;
 import smarthome.service.IBillingService;
-import smarthome.view.SmartHomeCLIView;
+import smarthome.view.SmartHomeGUIView;
 
 /**
  * DeviceDetailController - Shows device details and handles device-specific commands.
- * Now uses IDeviceUIHandler for Open/Closed Principle - no more instanceof checks!
  */
 public class DeviceDetailController implements IInterfaceController {
 
     private CentralController controller;
     private SmartHomeSystem system;
-    private SmartHomeCLIView view;
+    private SmartHomeGUIView view;
     private Device device;
     private IBillingService billingService;
     private DecimalFormat currencyFormatter = new DecimalFormat("0.000000000");
 
-    public DeviceDetailController(CentralController controller, SmartHomeSystem system, SmartHomeCLIView view) {
+    public DeviceDetailController(CentralController controller, SmartHomeSystem system, SmartHomeGUIView view) {
         this.controller = controller;
         this.system = system;
         this.view = view;
@@ -34,16 +33,16 @@ public class DeviceDetailController implements IInterfaceController {
 
     @Override
     public String getMenuContents() {
-        StringBuilder menu = new StringBuilder("=== DEVICE DETAILS ===\n");
-        menu.append("\nName: ").append(device.getName());
-        menu.append("\nType: ").append(device.getType());
-        menu.append("\nElectricity Rate: ").append(device.getElectricityUsage()).append(" Watts/Hour");
-        menu.append("\nTotal Usage Cost: $").append(
+        StringBuilder menu = new StringBuilder("🔧 === DEVICE DETAILS ===\n\n");
+        menu.append("📛 Name: ").append(device.getName()).append("\n");
+        menu.append("🏷️ Type: ").append(device.getType()).append("\n");
+        menu.append("⚡ Electricity Rate: ").append(device.getElectricityUsage()).append(" Watts/Hour\n");
+        menu.append("💰 Total Usage Cost: $").append(
             currencyFormatter.format(
                 billingService.calculateDeviceBill(device, system.getSimulation().getElectricityCost())
             )
-        );
-        menu.append("\nState: ").append(device.isOn() ? "ON" : "OFF");
+        ).append("\n");
+        menu.append("🔋 State: ").append(device.isOn() ? "✅ ON" : "⚫ OFF").append("\n");
         menu.append(device.getAdditionalMenuContent());
         return menu.toString();
     }
@@ -52,7 +51,7 @@ public class DeviceDetailController implements IInterfaceController {
     public String getOptionsContents() {
         StringBuilder options = new StringBuilder("1. Turn ON\n2. Turn OFF\n");
         options.append(device.getAdditionalOptions());
-        options.append("(0. Back to Dashboard)");
+        options.append("0. Back to Dashboard");
         return options.toString();
     }
 
@@ -70,15 +69,12 @@ public class DeviceDetailController implements IInterfaceController {
             case "5":
                 boolean handled = device.handleDeviceCommand(command, controller);
                 if (handled) {
-                    controller.setCurrentMessage(device.getName() + " was updated");
+                    controller.setCurrentMessage("✅ " + device.getName() + " updated");
                 } else {
                     view.showInvalidOption();
-                    controller.setCurrentMessage("Failed to update " + device.getName());
+                    controller.setCurrentMessage("❌ Failed to update " + device.getName());
                 }
                 break;
-            case "":
-                controller.renderCurrentScreen();
-                return;
             case "0":
                 controller.showDashboard();
                 return;
@@ -90,22 +86,22 @@ public class DeviceDetailController implements IInterfaceController {
     private void handleTurnOn() {
         if (!device.isOn()) {
             device.turnOn();
-            controller.setCurrentMessage(device.getName() + " was turned on");
+            controller.setCurrentMessage("✅ " + device.getName() + " turned ON");
             controller.addLogMessage("[" + controller.dateTimeFormatter.format(LocalDateTime.now()) + "] " +
                     device.getName() + " was turned on\n");
         } else {
-            controller.setCurrentMessage(device.getName() + " is already on");
+            controller.setCurrentMessage("ℹ️ " + device.getName() + " is already ON");
         }
     }
 
     private void handleTurnOff() {
         if (device.isOn()) {
             device.turnOff();
-            controller.setCurrentMessage(device.getName() + " was turned off");
+            controller.setCurrentMessage("✅ " + device.getName() + " turned OFF");
             controller.addLogMessage("[" + controller.dateTimeFormatter.format(LocalDateTime.now()) + "] " +
                     device.getName() + " was turned off\n");
         } else {
-            controller.setCurrentMessage(device.getName() + " is already off");
+            controller.setCurrentMessage("ℹ️ " + device.getName() + " is already OFF");
         }
     }
 }

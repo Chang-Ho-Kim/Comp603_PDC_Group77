@@ -4,35 +4,33 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.Scanner;
 import smarthome.model.SmartHomeSystem;
 import smarthome.model.Device;
 import smarthome.service.*;
 import smarthome.view.View;
+import smarthome.view.SmartHomeGUIView;
 import smarthome.view.ViewData;
 import smarthome.persistence.SaveLoadService;
 
 /**
- * CentralController - Refactored to follow SOLID principles.
+ * CentralController - Refactored to follow SOLID principles with full GUI support.
  * 
  * Responsibilities:
  * - Main application loop and screen navigation
+ * - GUI button handling and event processing
  * - Delegation to sub-controllers
  * 
  * Now implements segregated interfaces:
  * - IMessageManager: For UI messages
  * - IScreenNavigator: For screen navigation
- * - IInputHandler: For user input procedures
- * 
- * Depends on services via dependency injection instead of doing work itself.
+ * - IInputHandler: For GUI-based input dialogs
  */
 public class CentralController implements ICentralController, IMessageManager, IScreenNavigator, IInputHandler {
 
     private final SmartHomeSystem system;
-    private final View view;
-    private final Scanner scanner;
+    private final SmartHomeGUIView view;
     
-    // Services (now injected)
+    // Services (injected)
     private final ILoggingService loggingService;
     private final IAutomationService automationService;
     private final IBillingService billingService;
@@ -50,14 +48,14 @@ public class CentralController implements ICentralController, IMessageManager, I
     
     // State
     private String currentMessage;
+    private boolean running;
     
     // For backward compatibility
     public final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     
     public CentralController(SmartHomeSystem system, View view) {
         this.system = system;
-        this.view = view;
-        this.scanner = new Scanner(System.in);
+        this.view = (SmartHomeGUIView) view;
         
         // Get services from dependency container
         DependencyContainer container = DependencyContainer.getInstance();
@@ -67,10 +65,11 @@ public class CentralController implements ICentralController, IMessageManager, I
         this.thresholdManager = container.getThresholdManager();
         
         // Initialize state
-        this.currentMessage = "How may I be of assistance?";
+        this.currentMessage = "Welcome to Smart Home Simulator!";
+        this.running = true;
         
-        // Initialize sub-controllers on first use (lazy)
-        currentInterface = null;
+        // Set up button command handler
+        this.view.setCommandHandler(this::handleButtonCommand);
         
         // Log startup
         loggingService.addMessage("[" + dateTimeFormatter.format(LocalDateTime.now()) + "] " +
@@ -79,17 +78,17 @@ public class CentralController implements ICentralController, IMessageManager, I
 
     @Override
     public void start() {
-        // Ensure dashboard is shown first
+        // Show dashboard first
         showDashboard();
         
         // Start automation thread
         Thread automationThread = new Thread(() -> {
-            while (true) {
+            while (running) {
                 try {
                     synchronized (system) {
                         checkAutomation();
                     }
-                    Thread.sleep(1000);
+                    Thread.sleep(2000);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     break;
@@ -99,22 +98,35 @@ public class CentralController implements ICentralController, IMessageManager, I
         automationThread.setDaemon(true);
         automationThread.start();
         
-        // Main application loop
-        while (true) {
-            try {
-                renderCurrentScreen();
-                System.out.print("\nSelect option: ");
-                String input = scanner.nextLine();
-                currentInterface.handleCommand(input);
-                System.out.println("\n\n");
-                SaveLoadService.saveSystem(system);
-            } catch (Exception e) {
-                System.err.println("Error: " + e.getMessage());
+        // Main GUI refresh loop
+        Thread guiThread = new Thread(() -> {
+            while (running) {
+                try {
+                    renderCurrentScreen();
+                    Thread.sleep(500);
+                    SaveLoadService.saveSystem(system);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
             }
+        });
+        guiThread.setDaemon(true);
+        guiThread.start();
+    }
+
+    /**
+     * Handle button commands from GUI
+     */
+    private void handleButtonCommand(String command) {
+        if (currentInterface != null) {
+            currentInterface.handleCommand(command);
         }
     }
 
     public void renderCurrentScreen() {
+        if (currentInterface == null) return;
+        
         String menuContent = currentInterface.getMenuContents();
         String optionsContent = currentInterface.getOptionsContents();
         String formattedDateTime = dateTimeFormatter.format(LocalDateTime.now());
@@ -127,7 +139,7 @@ public class CentralController implements ICentralController, IMessageManager, I
     @Override
     public void showDashboard() {
         if (dashboardController == null) {
-            dashboardController = new DashboardController(this, system, (smarthome.view.SmartHomeCLIView) view);
+            dashboardController = new DashboardController(this, system, view);
         }
         currentInterface = dashboardController;
     }
@@ -135,7 +147,7 @@ public class CentralController implements ICentralController, IMessageManager, I
     @Override
     public void showDevice(Device device) {
         if (deviceController == null) {
-            deviceController = new DeviceDetailController(this, system, (smarthome.view.SmartHomeCLIView) view);
+            deviceController = new DeviceDetailController(this, system, view);
         }
         deviceController.setDevice(device);
         currentInterface = deviceController;
@@ -144,7 +156,7 @@ public class CentralController implements ICentralController, IMessageManager, I
     @Override
     public void showSimulation() {
         if (simulationController == null) {
-            simulationController = new SimulationController(this, system, (smarthome.view.SmartHomeCLIView) view);
+            simulationController = new SimulationController(this, system, view);
         }
         currentInterface = simulationController;
     }
@@ -152,7 +164,7 @@ public class CentralController implements ICentralController, IMessageManager, I
     @Override
     public void showLog() {
         if (logController == null) {
-            logController = new LogController(this, system, (smarthome.view.SmartHomeCLIView) view);
+            logController = new LogController(this, system, view);
         }
         currentInterface = logController;
     }
@@ -160,7 +172,7 @@ public class CentralController implements ICentralController, IMessageManager, I
     @Override
     public void showDeviceAdder() {
         if (deviceAdderController == null) {
-            deviceAdderController = new DeviceAdderController(this, system, (smarthome.view.SmartHomeCLIView) view);
+            deviceAdderController = new DeviceAdderController(this, system, view);
         }
         currentInterface = deviceAdderController;
     }
@@ -168,7 +180,7 @@ public class CentralController implements ICentralController, IMessageManager, I
     @Override
     public void showDeviceRemover() {
         if (deviceRemoverController == null) {
-            deviceRemoverController = new DeviceRemoverController(this, system, (smarthome.view.SmartHomeCLIView) view);
+            deviceRemoverController = new DeviceRemoverController(this, system, view);
         }
         currentInterface = deviceRemoverController;
     }
@@ -176,7 +188,7 @@ public class CentralController implements ICentralController, IMessageManager, I
     @Override
     public void showAutomation() {
         if (automationController == null) {
-            automationController = new AutomationListController(this, system, (smarthome.view.SmartHomeCLIView) view);
+            automationController = new AutomationListController(this, system, view);
         }
         currentInterface = automationController;
     }
@@ -197,39 +209,30 @@ public class CentralController implements ICentralController, IMessageManager, I
         loggingService.addMessage(message);
     }
 
-    // IInputHandler implementation
+    // IInputHandler implementation - GUI-based dialogs
     @Override
     public String setDeviceProcedure() {
-        System.out.println("What is its name?: ");
-        return scanner.nextLine();
+        String name = view.showDeviceNameDialog();
+        return name != null && !name.isEmpty() ? name : "Unnamed Device";
     }
 
     @Override
     public LocalTime setTime() {
-        System.out.println("Set Time: (HH:mm:ss)");
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
-        
-        while (true) {
-            String time = scanner.nextLine();
+        String timeStr = view.showTimeDialog();
+        if (timeStr != null) {
             try {
-                return LocalTime.parse(time, timeFormatter);
+                return LocalTime.parse(timeStr, timeFormatter);
             } catch (DateTimeParseException e) {
-                System.out.println("Invalid time format. Please use HH:mm:ss");
-                System.out.print("Try again: ");
+                view.showErrorMessage("Invalid time format. Please use HH:mm:ss", "Error");
             }
         }
+        return LocalTime.now();
     }
 
     @Override
     public int setTemp() {
-        System.out.println("Set Temperature: ");
-        try {
-            String temp = scanner.nextLine();
-            return Integer.parseInt(temp);
-        } catch (NumberFormatException e) {
-            System.out.println("Invalid temperature. Please enter a number");
-            return -1;
-        }
+        return view.showTemperatureDialog();
     }
 
     @Override
@@ -239,7 +242,7 @@ public class CentralController implements ICentralController, IMessageManager, I
         
         automationService.checkAllDevicesAutomation(system.getAllDevices(), currentTemp, currentTime);
         
-        // Update threshold manager based on current usage
+        // Update threshold manager
         int totalUsage = billingService.calculateTotalElectricityUsage(system.getAllDevices());
         thresholdManager.setThresholdExceeded(totalUsage > system.getSimulation().getPowerThreshold());
     }
@@ -262,16 +265,13 @@ public class CentralController implements ICentralController, IMessageManager, I
     }
 
     public void exit() {
-        System.out.println("Exiting...");
+        running = false;
         loggingService.addMessage("[" + dateTimeFormatter.format(LocalDateTime.now()) + "] " +
                 "Smart Home Simulator Ended\n");
+        SaveLoadService.saveSystem(system);
         System.exit(0);
     }
     
-    /**
-     * Get the logging service for direct access to logs
-     * @return The ILoggingService instance
-     */
     public ILoggingService getLoggingService() {
         return loggingService;
     }
