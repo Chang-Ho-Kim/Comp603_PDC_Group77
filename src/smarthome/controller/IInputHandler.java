@@ -9,6 +9,6 @@ import java.time.LocalTime;
 public interface IInputHandler {
     String setDeviceProcedure();
     LocalTime setTime();
-    int setTemp();
+    Integer setTemp();
     void checkAutomation();
 }

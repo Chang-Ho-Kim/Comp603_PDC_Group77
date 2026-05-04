@@ -33,16 +33,16 @@ public class DeviceDetailController implements IInterfaceController {
 
     @Override
     public String getMenuContents() {
-        StringBuilder menu = new StringBuilder("🔧 === DEVICE DETAILS ===\n\n");
-        menu.append("📛 Name: ").append(device.getName()).append("\n");
-        menu.append("🏷️ Type: ").append(device.getType()).append("\n");
-        menu.append("⚡ Electricity Rate: ").append(device.getElectricityUsage()).append(" Watts/Hour\n");
-        menu.append("💰 Total Usage Cost: $").append(
+        StringBuilder menu = new StringBuilder("=== DEVICE DETAILS ===\n\n");
+        menu.append("Name: ").append(device.getName()).append("\n");
+        menu.append("Type: ").append(device.getType()).append("\n");
+        menu.append("Electricity Rate: ").append(device.getElectricityUsage()).append(" Watts/Hour\n");
+        menu.append("Total Usage Cost: $").append(
             currencyFormatter.format(
                 billingService.calculateDeviceBill(device, system.getSimulation().getElectricityCost())
             )
         ).append("\n");
-        menu.append("🔋 State: ").append(device.isOn() ? "✅ ON" : "⚫ OFF").append("\n");
+        menu.append("State: ").append(device.isOn() ? "ON" : "OFF").append("\n");
         menu.append(device.getAdditionalMenuContent());
         return menu.toString();
     }
@@ -69,10 +69,10 @@ public class DeviceDetailController implements IInterfaceController {
             case "5":
                 boolean handled = device.handleDeviceCommand(command, controller);
                 if (handled) {
-                    controller.setCurrentMessage("✅ " + device.getName() + " updated");
+                    controller.setCurrentMessage(device.getName() + " updated");
                 } else {
                     view.showInvalidOption();
-                    controller.setCurrentMessage("❌ Failed to update " + device.getName());
+                    controller.setCurrentMessage("Failed to update " + device.getName());
                 }
                 break;
             case "0":
@@ -86,7 +86,7 @@ public class DeviceDetailController implements IInterfaceController {
     private void handleTurnOn() {
         if (!device.isOn()) {
             device.turnOn();
-            controller.setCurrentMessage("✅ " + device.getName() + " turned ON");
+            controller.setCurrentMessage(device.getName() + " turned ON");
             controller.addLogMessage("[" + controller.dateTimeFormatter.format(LocalDateTime.now()) + "] " +
                     device.getName() + " was turned on\n");
         } else {
@@ -97,11 +97,11 @@ public class DeviceDetailController implements IInterfaceController {
     private void handleTurnOff() {
         if (device.isOn()) {
             device.turnOff();
-            controller.setCurrentMessage("✅ " + device.getName() + " turned OFF");
+            controller.setCurrentMessage(device.getName() + " turned OFF");
             controller.addLogMessage("[" + controller.dateTimeFormatter.format(LocalDateTime.now()) + "] " +
                     device.getName() + " was turned off\n");
         } else {
-            controller.setCurrentMessage("ℹ️ " + device.getName() + " is already OFF");
+            controller.setCurrentMessage(device.getName() + " is already OFF");
         }
     }
 }

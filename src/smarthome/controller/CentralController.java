@@ -210,41 +210,87 @@ public class CentralController implements ICentralController, IMessageManager, I
     }
 
     // IInputHandler implementation - GUI-based dialogs
-    @Override
-    public String setDeviceProcedure() {
-        String name = view.showDeviceNameDialog();
-        return name != null && !name.isEmpty() ? name : "Unnamed Device";
+   @Override
+public String setDeviceProcedure() {
+    String name = view.showDeviceNameDialog();
+
+    // Cancel pressed
+    if (name == null) {
+        return null;
     }
+
+    // Empty input
+    if (name.trim().isEmpty()) {
+        view.showErrorMessage("Device name cannot be empty", "Input Error");
+        return null;
+    }
+
+    return name.trim();
+}
 
     @Override
     public LocalTime setTime() {
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
         String timeStr = view.showTimeDialog();
-        if (timeStr != null) {
-            try {
-                return LocalTime.parse(timeStr, timeFormatter);
-            } catch (DateTimeParseException e) {
-                view.showErrorMessage("Invalid time format. Please use HH:mm:ss", "Error");
-            }
+
+        if (timeStr == null) {
+            return null; // ✅ user cancelled
         }
-        return LocalTime.now();
+
+        try {
+            return LocalTime.parse(timeStr, timeFormatter);
+        } catch (DateTimeParseException e) {
+            view.showErrorMessage("Invalid time format. Please use HH:mm:ss", "Error");
+            return null; // also treat invalid input as cancel/fail
+        }
     }
 
     @Override
-    public int setTemp() {
-        return view.showTemperatureDialog();
+    public Integer setTemp() {
+        Integer temp = view.showTemperatureDialog();
+
+        if (temp == null) {
+            return null;
+        }
+
+        return temp;
     }
 
-    @Override
+   @Override
     public void checkAutomation() {
         LocalTime currentTime = LocalTime.now();
         int currentTemp = system.getSimulation().getTemperature();
-        
-        automationService.checkAllDevicesAutomation(system.getAllDevices(), currentTemp, currentTime);
-        
-        // Update threshold manager
+
+        for (Device device : system.getAllDevices()) {
+
+            boolean before = device.isOn();
+
+            automationService.checkDeviceAutomation(device, currentTemp, currentTime);
+
+            boolean after = device.isOn();
+
+           if (before != after) {
+                String state = after ? "ON" : "OFF";
+
+                String msg =
+                    device.getName() + " auto turned " + state;
+
+                // LOG FILE
+                loggingService.addMessage(
+                    "[" + dateTimeFormatter.format(LocalDateTime.now()) + "] "
+                    + msg + "\n"
+                );
+
+                // GUI MESSAGE (what user sees)
+                setCurrentMessage(msg);
+            }
+        }
+
         int totalUsage = billingService.calculateTotalElectricityUsage(system.getAllDevices());
-        thresholdManager.setThresholdExceeded(totalUsage > system.getSimulation().getPowerThreshold());
+
+        thresholdManager.setThresholdExceeded(
+            totalUsage > system.getSimulation().getPowerThreshold()
+        );
     }
 
     // Backward compatibility getters

@@ -111,23 +111,29 @@ public abstract class ScheduledDevice extends Device implements ISchedulable {
     public boolean handleDeviceCommand(String command, IInputHandler handler) {
         switch (command) {
             case "3":
+                LocalTime newStart = handler.setTime();
+                if (newStart == null) return false; // cancel → do nothing
+
                 LocalTime original = getStart();
-                setStart(handler.setTime());
-                if(!getEnd().equals(LocalTime.of(0, 0, 0)) && getStart().isAfter(getEnd())) {
+                setStart(newStart);
+
+                if (!getEnd().equals(LocalTime.of(0, 0, 0)) && getStart().isAfter(getEnd())) {
                     setStart(original);
-                    return false; // Let controller handle error
+                    return false;
                 }
                 return true;
-                
             case "4":
+                LocalTime newEnd = handler.setTime();
+                if (newEnd == null) return false; // cancel → do nothing
+
                 LocalTime originalEnd = getEnd();
-                setEnd(handler.setTime());
-                if(!start.equals(LocalTime.of(0, 0, 0)) && getEnd().isBefore(getStart())) {
+                setEnd(newEnd);
+
+                if (!start.equals(LocalTime.of(0, 0, 0)) && getEnd().isBefore(getStart())) {
                     setEnd(originalEnd);
-                    return false; // Let controller handle error
+                    return false;
                 }
                 return true;
-                
             case "5":
                 setScheduleOn(!isScheduleOn());
                 return true;

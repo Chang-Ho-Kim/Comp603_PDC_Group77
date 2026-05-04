@@ -22,9 +22,9 @@ public class LogController implements IInterfaceController {
     public String getMenuContents(){
         String logs = controller.getLoggingService().getMessages().toString();
         if (logs.isEmpty()) {
-            return "📋 === APPLICATION LOG ===\n\nNo logs yet.";
+            return "=== APPLICATION LOG ===\n\nNo logs yet.";
         }
-        return "📋 === APPLICATION LOG ===\n\n" + logs;
+        return "=== APPLICATION LOG ===\n\n" + logs;
     }
 
     @Override
@@ -45,9 +45,9 @@ public class LogController implements IInterfaceController {
             case "1":
                 if(view.showConfirmDialog("Delete all logs?", "Confirm")) {
                     controller.getLoggingService().clearMessages();
-                    controller.setCurrentMessage("✅ Log deleted");
+                    controller.setCurrentMessage("Log deleted");
                 } else {
-                    controller.setCurrentMessage("❌ Deletion cancelled");
+                    controller.setCurrentMessage("Deletion cancelled");
                 }
                 return;
 
@@ -83,12 +83,12 @@ public class LogController implements IInterfaceController {
 
             try (FileWriter writer = new FileWriter(file)) {
                 writer.write(controller.getLoggingService().getMessages().toString());
-                controller.setCurrentMessage("✅ Log exported to " + file.getName());
+                controller.setCurrentMessage("Log exported to " + file.getName());
             } catch (IOException e) {
-                controller.setCurrentMessage("❌ Export failed: " + e.getMessage());
+                controller.setCurrentMessage("Export failed: " + e.getMessage());
             }
         } else {
-            controller.setCurrentMessage("❌ Export cancelled");
+            controller.setCurrentMessage("Export cancelled");
         }
     }
 }

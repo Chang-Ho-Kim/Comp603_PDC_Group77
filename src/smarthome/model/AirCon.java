@@ -4,6 +4,8 @@
  */
 package smarthome.model;
 
+import smarthome.controller.IInputHandler;
+
 
 
 /**
@@ -35,4 +37,28 @@ public class AirCon extends SensorDevice {
         super.setLower(lower);
     }
     
+    @Override
+    public String getAdditionalOptions() {
+        return "3. Set temperature threshold\n4. Set Sensor Mode On/Off\n";
+    }
+    
+    @Override
+    public boolean handleDeviceCommand(String command, IInputHandler handler) {
+        switch (command) {
+
+            case "3":
+                Integer newUpper = handler.setTemp();
+                if (newUpper == null) return false;
+
+                setUpper(newUpper);
+                return true;
+
+            case "4":
+                setSensorOn(!isSensorOn());
+                return true;
+
+            default:
+                return false;
+        }
+    }
 }

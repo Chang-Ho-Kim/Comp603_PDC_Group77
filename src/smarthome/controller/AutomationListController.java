@@ -26,7 +26,7 @@ public class AutomationListController implements IInterfaceController {
     @Override
     public String getMenuContents() {
         deviceList = new ArrayList<>();
-        StringBuilder menu = new StringBuilder("⚙️ === AUTOMATION SETTINGS ===\n\nCurrent View: ");
+        StringBuilder menu = new StringBuilder("=== AUTOMATION SETTINGS ===\n\nCurrent View: ");
         
         switch(dType) {
             case SCHEDULER: menu.append("Scheduled Devices\n\n"); break;
@@ -42,7 +42,7 @@ public class AutomationListController implements IInterfaceController {
                 if((d instanceof ISensorable) ||(d instanceof ScheduledDevice) || (d instanceof IPowerSaveable)){
                     deviceList.add(i-1, d);
                     menu.append(i).append(". ").append(d.getName())
-                        .append(" [").append(d.isOn() ? "✅ ON" : "⚫ OFF").append("]\n");
+                        .append(" [").append(d.isOn() ? "ON" : "OFF").append("]\n");
                     i++;
                 }
             }
@@ -88,10 +88,10 @@ public class AutomationListController implements IInterfaceController {
 
     @Override
     public String getOptionsContents() {
-        return "1. 📅 Scheduled Devices\n" +
-                "2. 🌡️ Sensor Devices\n" +
-                "3. ⚡ Power Saver Devices\n" +
-                "4. 📊 All Automatable Devices\n" +
+        return "1. Scheduled Devices\n" +
+                "2. Sensor Devices\n" +
+                "3. Power Saver Devices\n" +
+                "4. All Automatable Devices\n" +
                 "0. Back to Dashboard";
     }
 

@@ -93,34 +93,45 @@ public abstract class SensorDevice extends Device implements ISensorable {
     
     @Override
     public String getAdditionalOptions() {
-        return "3. Set sensor lower threshold\n4. Set sensor upper threshold\n5. Set Sensor Mode On/Off\n";
+        return "";
     }
     
     @Override
     public boolean handleDeviceCommand(String command, IInputHandler handler) {
         switch (command) {
-            case "3":
+
+            case "3": {
+                Integer newLower = handler.setTemp();
+                if (newLower == null) return false;
+
                 int originalLower = getLower();
-                setLower(handler.setTemp());
+                setLower(newLower);
+
                 if (getUpper() != 0 && getLower() > getUpper()) {
                     setLower(originalLower);
-                    return false; // Let controller handle error
+                    return false;
                 }
                 return true;
-                
-            case "4":
+            }
+
+            case "4": {
+                Integer newUpper = handler.setTemp();
+                if (newUpper == null) return false;
+
                 int originalUpper = getUpper();
-                setUpper(handler.setTemp());
+                setUpper(newUpper);
+
                 if (getLower() != 0 && getUpper() < getLower()) {
                     setUpper(originalUpper);
-                    return false; // Let controller handle error
+                    return false;
                 }
                 return true;
-                
+            }
+
             case "5":
                 setSensorOn(!isSensorOn());
                 return true;
-                
+
             default:
                 return false;
         }

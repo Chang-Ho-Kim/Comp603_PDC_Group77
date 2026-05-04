@@ -19,10 +19,10 @@ public class SimulationController implements IInterfaceController {
 
     @Override
     public String getMenuContents(){
-        return "🌡️ === SIMULATION SETTINGS ===\n\n" +
-        "🌡️ Temperature: " + simulation.getTemperature() + "°C\n"+
-        "💵 Electricity Rate: $" + simulation.getElectricityCost()+ " / Watt-hour\n"+
-        "⚡ Power Saver Threshold: " + simulation.getPowerThreshold() + " Watts";
+        return "=== SIMULATION SETTINGS ===\n\n" +
+        "Temperature: " + simulation.getTemperature() + "°C\n"+
+        "Electricity Rate: $" + simulation.getElectricityCost()+ " / Watt-hour\n"+
+        "Power Saver Threshold: " + simulation.getPowerThreshold() + " Watts";
     }
 
     @Override
@@ -38,13 +38,13 @@ public class SimulationController implements IInterfaceController {
         switch(command){
             case "1":
                 simulation.setTemperature(simulation.getTemperature()+1);
-                controller.setCurrentMessage("🌡️ Temperature increased to " + simulation.getTemperature());
+                controller.setCurrentMessage("Temperature increased to " + simulation.getTemperature());
                 controller.addLogMessage("[" + LocalDateTime.now().format(controller.dateTimeFormatter) + "] Temperature increased to " + simulation.getTemperature() + "\n");
                 controller.checkAutomation();
                 break;
             case "2":
                 simulation.setTemperature(simulation.getTemperature()-1);
-                controller.setCurrentMessage("🌡️ Temperature decreased to " + simulation.getTemperature());
+                controller.setCurrentMessage("Temperature decreased to " + simulation.getTemperature());
                 controller.addLogMessage("[" + LocalDateTime.now().format(controller.dateTimeFormatter) + "] Temperature decreased to " + simulation.getTemperature() + "\n");
                 controller.checkAutomation();
                 break;
@@ -52,7 +52,7 @@ public class SimulationController implements IInterfaceController {
                 int temp = controller.setTemp();
                 if (temp != -1) {
                     simulation.setTemperature(temp);
-                    controller.setCurrentMessage("🌡️ Temperature set to " + temp);
+                    controller.setCurrentMessage("Temperature set to " + temp);
                     controller.addLogMessage("[" + LocalDateTime.now().format(controller.dateTimeFormatter) + "] Temperature set to " + temp + "\n");
                     controller.checkAutomation();
                 }

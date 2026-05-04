@@ -104,13 +104,13 @@ public class SmartHomeGUIView extends JFrame implements View {
     @Override
     public void renderView(ViewData data) {
 
-        dateTimeLabel.setText("📅 " + data.getFormattedDateTime());
+        dateTimeLabel.setText(data.getFormattedDateTime());
 
         StringBuilder content = new StringBuilder();
 
         if (data.getMessage() != null && !data.getMessage().isEmpty()) {
-            content.append(">> ").append(data.getMessage()).append("\n\n");
-            statusLabel.setText("✓ " + data.getMessage());
+            content.append("blexb: ").append(data.getMessage()).append("\n\n");
+            statusLabel.setText(data.getMessage());
         }
 
         if (data.getMenuContents() != null) {
@@ -227,7 +227,7 @@ public class SmartHomeGUIView extends JFrame implements View {
 
     @Override
     public void showInvalidOption() {
-        statusLabel.setText("❌ Invalid option");
+        statusLabel.setText("Invalid option");
     }
 
     public void setCommandHandler(Consumer<String> handler) {
@@ -255,7 +255,7 @@ public class SmartHomeGUIView extends JFrame implements View {
         );
     }
 
-    public int showTemperatureDialog() {
+    public Integer showTemperatureDialog() {
         String input = JOptionPane.showInputDialog(
                 this,
                 "Enter temperature:",
@@ -263,15 +263,15 @@ public class SmartHomeGUIView extends JFrame implements View {
                 JOptionPane.QUESTION_MESSAGE
         );
 
-        if (input == null || input.isEmpty()) {
-            return 0;
+        if (input == null || input.trim().isEmpty()) {
+            return null;
         }
 
         try {
             return Integer.parseInt(input.trim());
         } catch (NumberFormatException e) {
             showErrorMessage("Invalid temperature value", "Input Error");
-            return 0;
+            return null;
         }
     }
 

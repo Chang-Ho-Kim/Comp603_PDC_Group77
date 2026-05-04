@@ -27,23 +27,26 @@ public class DashboardController implements IInterfaceController {
     @Override
     public String getMenuContents(){
         deviceList = new ArrayList<>(system.getAllDevices());
-        StringBuilder menu = new StringBuilder("🏠 === SMART HOME DASHBOARD ===\n\n");
+        StringBuilder menu = new StringBuilder("=== SMART HOME DASHBOARD ===\n\n");
 
         if (deviceList.isEmpty()) {
             menu.append("No devices installed yet.\n");
         } else {
-            menu.append("📱 DEVICES:\n");
+            menu.append("DEVICES:\n");
             int i = 1;
             for (Device d : deviceList) {
-                String status = d.isOn() ? "✅ ON" : "⚫ OFF";
+                String status = d.isOn() ? "ON" : "OFF";
                 menu.append(i).append(". ").append(d.getName())
                     .append(" [").append(status).append("]\n");
                 i++;
             }
         }
         
+        int currentTemp = system.getSimulation().getTemperature();
+        menu.append("\nTemperature: ").append(currentTemp).append(" °C");
+        
         int totalUsage = billingService.calculateTotalElectricityUsage(system.getAllDevices());
-        menu.append("\n⚡ Electricity Usage: ").append(totalUsage).append(" Watts/Hour\n");
+        menu.append("\nElectricity Usage: ").append(totalUsage).append(" Watts/Hour\n");
         
         double totalBill = billingService.calculateTotalBill(
             system.getAllDevices(),
@@ -54,7 +57,7 @@ public class DashboardController implements IInterfaceController {
             system.getSimulation().getElectricityCost()
         );
         DecimalFormat df = new DecimalFormat("0.000000000");
-        menu.append("💰 Total Bill: $").append(df.format(totalBill+removedDevicesAccruedBill));
+        menu.append("Total Bill: $").append(df.format(totalBill+removedDevicesAccruedBill));
         return menu.toString();
     }
     
@@ -97,30 +100,30 @@ public class DashboardController implements IInterfaceController {
         
         if(command.equalsIgnoreCase("s")){
             controller.showSimulation();
-            controller.setCurrentMessage("📊 Simulation Settings");
+            controller.setCurrentMessage("Simulation Settings");
             return;
         }
         if(command.equalsIgnoreCase("w")){
             if(system.getAllDevices().isEmpty()){
-                controller.setCurrentMessage("❌ No devices to turn on");
+                controller.setCurrentMessage("No devices to turn on");
                 return;
             }
             for(Device d: system.getAllDevices()){
                 d.turnOn();
             }
-            controller.setCurrentMessage("✅ All devices turned ON");
+            controller.setCurrentMessage("All devices turned ON");
             controller.addLogMessage("[" + LocalDateTime.now().format(controller.dateTimeFormatter) + "] All devices turned on\n");
             return;
         }
         if(command.equalsIgnoreCase("e")){
             if(system.getAllDevices().isEmpty()){
-                controller.setCurrentMessage("❌ No devices to turn off");
+                controller.setCurrentMessage("No devices to turn off");
                 return;
             }
             for(Device d: system.getAllDevices()){
                 d.turnOff();
             }
-            controller.setCurrentMessage("✅ All devices turned OFF");
+            controller.setCurrentMessage("All devices turned OFF");
             controller.addLogMessage("[" + LocalDateTime.now().format(controller.dateTimeFormatter) + "] All devices turned off\n");
             return;
         }
@@ -147,6 +150,6 @@ public class DashboardController implements IInterfaceController {
             return;
         }
         view.showInvalidOption();
-        controller.setCurrentMessage("❌ Invalid option");
+        controller.setCurrentMessage("Invalid option");
     }
 }

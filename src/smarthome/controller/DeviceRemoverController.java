@@ -23,7 +23,7 @@ public class DeviceRemoverController implements IInterfaceController {
     public String getMenuContents(){
         deviceList = new ArrayList<>(system.getAllDevices());
 
-        StringBuilder menu = new StringBuilder("🗑️ === REMOVE DEVICE ===\n\n");
+        StringBuilder menu = new StringBuilder("=== REMOVE DEVICE ===\n\n");
 
         if (deviceList.isEmpty()) {
             menu.append("No devices to remove.\n");
@@ -35,7 +35,7 @@ public class DeviceRemoverController implements IInterfaceController {
                     .append(". ")
                     .append(d.getName())
                     .append(" [")
-                    .append(d.isOn() ? "✅ ON" : "⚫ OFF")
+                    .append(d.isOn() ? "ON" : "OFF")
                     .append("]\n");
                 i++;
             }
@@ -74,7 +74,7 @@ public class DeviceRemoverController implements IInterfaceController {
     public void handleCommand(String command){
 
         if (command.equals("0")) {
-            controller.setCurrentMessage("↩️ Removal cancelled");
+            controller.setCurrentMessage("Removal cancelled");
             controller.showDashboard();
             return;
         }
@@ -97,24 +97,24 @@ public class DeviceRemoverController implements IInterfaceController {
                 if (confirm) {
                     system.removeDevice(deviceName);
 
-                    controller.setCurrentMessage("✅ " + deviceName + " removed");
+                    controller.setCurrentMessage(deviceName + " removed");
 
                     controller.addLogMessage(
                         "[" + LocalDateTime.now().format(controller.dateTimeFormatter) + "] "
                         + deviceName + " was removed\n"
                     );
                 } else {
-                    controller.setCurrentMessage("❌ Removal cancelled");
+                    controller.setCurrentMessage("Removal cancelled");
                 }
 
             } else {
                 view.showInvalidOption();
-                controller.setCurrentMessage("❌ Invalid selection");
+                controller.setCurrentMessage("Invalid selection");
             }
 
         } catch (NumberFormatException e) {
             view.showInvalidOption();
-            controller.setCurrentMessage("❌ Invalid input");
+            controller.setCurrentMessage("Invalid input");
         }
 
         controller.showDashboard();
