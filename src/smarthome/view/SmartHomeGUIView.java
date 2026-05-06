@@ -13,10 +13,12 @@ public class SmartHomeGUIView extends JFrame implements View {
     private JTextArea displayArea;
     private JLabel statusLabel;
     private JPanel buttonPanel;
+    private JPanel deviceButtonPanel;
     private List<JButton> currentButtons;
     private Consumer<String> commandHandler;
-
-    // 🎨 Neon Colors
+    private String lastOptionsText = null;
+    
+    // 🎨 Base Theme
     private final Color BG = new Color(10, 10, 20);
     private final Color PANEL = new Color(18, 18, 35);
     private final Color BLUE = new Color(0, 255, 255);
@@ -35,7 +37,6 @@ public class SmartHomeGUIView extends JFrame implements View {
         setLayout(new BorderLayout(12, 12));
         getContentPane().setBackground(BG);
 
-        // outer spacing so UI isn't glued to edges
         ((JComponent) getContentPane())
                 .setBorder(BorderFactory.createEmptyBorder(14, 14, 14, 14));
 
@@ -63,13 +64,10 @@ public class SmartHomeGUIView extends JFrame implements View {
         centerPane.setBorder(BorderFactory.createLineBorder(PURPLE));
         add(centerPane, BorderLayout.CENTER);
 
-        // ===== LEFT CONTROL PANEL =====
+        // ===== LEFT PANEL =====
         JPanel leftPanel = new JPanel(new BorderLayout());
         leftPanel.setBackground(BG);
-
-        // 👇 slightly wider than before
         leftPanel.setPreferredSize(new Dimension(400, 0));
-
         leftPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         JLabel controlTitle = new JLabel("CONTROLS");
@@ -90,13 +88,26 @@ public class SmartHomeGUIView extends JFrame implements View {
 
         add(leftPanel, BorderLayout.WEST);
 
-        // ===== STATUS BAR =====
+        // ===== DEVICE PANEL (SOUTH) =====
+        deviceButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
+        deviceButtonPanel.setBackground(BG);
+
+        JScrollPane deviceScroll = new JScrollPane(deviceButtonPanel);
+        deviceScroll.setPreferredSize(new Dimension(0, 120));
+        deviceScroll.setBorder(BorderFactory.createLineBorder(PURPLE));
+
         statusLabel = new JLabel("System Ready");
         statusLabel.setForeground(PINK);
         statusLabel.setBackground(PANEL);
         statusLabel.setOpaque(true);
         statusLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        add(statusLabel, BorderLayout.SOUTH);
+
+        JPanel bottomPanel = new JPanel(new BorderLayout());
+        bottomPanel.setBackground(BG);
+        bottomPanel.add(deviceScroll, BorderLayout.CENTER);
+        bottomPanel.add(statusLabel, BorderLayout.SOUTH);
+
+        add(bottomPanel, BorderLayout.SOUTH);
 
         setVisible(true);
     }
@@ -122,83 +133,152 @@ public class SmartHomeGUIView extends JFrame implements View {
         displayArea.setText(content.toString());
         displayArea.setCaretPosition(0);
 
-        generateButtonsFromOptions(data.getOptionsContents());
+        //generateButtonsFromOptions(data.getOptionsContents());
+        String options = data.getOptionsContents();
+
+        if (options != null && !options.equals(lastOptionsText)) {
+            generateButtonsFromOptions(options);
+            lastOptionsText = options;
+        }
     }
 
     private void generateButtonsFromOptions(String optionsText) {
 
-        buttonPanel.removeAll();
-        currentButtons.clear();
+      buttonPanel.removeAll();
+      deviceButtonPanel.removeAll();
+      currentButtons.clear();
 
-        if (optionsText == null || optionsText.isEmpty()) return;
+      if (optionsText == null || optionsText.isEmpty()) return;
 
-        String[] lines = optionsText.split("\n");
+      String[] lines = optionsText.split("\n");
 
-        for (String line : lines) {
+      for (String line : lines) {
 
-            line = line.trim();
-            if (line.isEmpty()) continue;
+          line = line.trim();
+          if (line.isEmpty()) continue;
 
-            String[] parts = line.split("\\.", 2);
-            String command = parts[0].trim();
-            String label = parts.length > 1 ? parts[1].trim() : command;
+          String[] parts = line.split("\\.", 2);
+          String command = parts[0].trim();
+          String label = parts.length > 1 ? parts[1].trim() : command;
 
-            if (label.contains("Enter") || label.contains("Type")) continue;
+          if (label.contains("Enter") || label.contains("Type")) continue;
 
-            createButton(command, label);
-        }
+          JButton button = createButton(command, label);
 
-        buttonPanel.revalidate();
-        buttonPanel.repaint();
+          if (isSystemButton(label)) {
+              buttonPanel.add(button);
+          } else {
+              deviceButtonPanel.add(button);
+          }
+
+          currentButtons.add(button);
+      }
+
+      // 🔧 FIX: ensure repaint happens AFTER Swing layout settles
+      SwingUtilities.invokeLater(() -> {
+          buttonPanel.revalidate();
+          buttonPanel.repaint();
+
+          deviceButtonPanel.revalidate();
+          deviceButtonPanel.repaint();
+      });
+  }
+    private boolean isSystemButton(String label) {
+        if (label.equals("Heater")) return true;
+        if (label.equals("Air Conditioner")) return true;
+        if (label.equals("Light")) return true;
+        if (label.equals("Door")) return true;
+        if (label.equals("Television")) return true;
+        if (label.equals("Music Player")) return true;
+        if (label.equals("Robot Cleaner")) return true;
+        if (label.equals("Alarm Clock")) return true;
+        if (label.equals("Turn ON")) return true;
+        if (label.equals("Turn OFF")) return true;
+        
+        String l = label.toLowerCase().trim();
+
+        if (l.startsWith("remove")) return true;
+        if (l.contains("increase")) return true;
+        if (l.contains("decrease")) return true;
+        if (l.contains("set custom")) return true;
+        if (l.contains("devices")) return true;
+        if (l.matches(".*\\blog\\b.*")) return true;
+        if (l.contains("set ")) return true;
+
+        return l.equals("turn off all")
+                || l.equals("turn on all")
+                || l.equals("add device")
+                || l.equals("remove device")
+                || l.equals("view automation")
+                || l.equals("simulation settings")
+                || l.equals("view log")
+                || l.equals("quit")
+                || l.equals("back to dashboard")
+                || l.equals("cancel");
     }
 
-    private void createButton(String command, String label) {
+    // =========================
+    // 🎨 MODERN DASHBOARD BUTTONS (NEON PAIRS + SMOOTH EDGES)
+    // =========================
+    private JButton createButton(String command, String label) {
 
-        JButton button = new JButton(label) {
+        JButton button = new JButton(label);
 
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                        RenderingHints.VALUE_ANTIALIAS_ON);
+        Color accent = getButtonColor(command);
 
-                g2.setColor(getForeground());
-                for (int i = 6; i > 0; i--) {
-                    g2.setComposite(AlphaComposite.getInstance(
-                            AlphaComposite.SRC_OVER, 0.05f));
-                    g2.fillRoundRect(i, i, getWidth() - i * 2, getHeight() - i * 2, 20, 20);
-                }
-
-                g2.setComposite(AlphaComposite.SrcOver);
-                g2.setColor(new Color(20, 20, 40));
-                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
-
-                g2.setColor(getForeground());
-                g2.setStroke(new BasicStroke(2));
-                g2.drawRoundRect(1, 1, getWidth() - 3, getHeight() - 3, 20, 20);
-
-                g2.dispose();
-                super.paintComponent(g);
-            }
-        };
-
-        // 🔥 FORCE ALL BUTTONS SAME SIZE
-        button.setPreferredSize(new Dimension(140, 45));
-        button.setMinimumSize(new Dimension(140, 45));
+        Color baseBg = new Color(20, 22, 32);
+        Color hoverBg = new Color(30, 34, 50);
+        Color pressBg = new Color(15, 18, 28);
 
         button.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        button.setForeground(getButtonColor(command));
-        button.setContentAreaFilled(false);
-        button.setBorderPainted(false);
+        button.setForeground(Color.WHITE);
+
+        button.setBackground(baseBg);
+
         button.setFocusPainted(false);
-        button.setOpaque(false);
+        button.setContentAreaFilled(false);
+        button.setOpaque(true);
+
+        button.setPreferredSize(new Dimension(140, 44));
+
+        // smoother "rounded card" feel via padding + border glow
+        button.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(accent, 2, true),
+                BorderFactory.createEmptyBorder(8, 14, 8, 14)
+        ));
+
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         button.addMouseListener(new MouseAdapter() {
+
+            @Override
             public void mouseEntered(MouseEvent e) {
-                button.setForeground(button.getForeground().brighter());
+                button.setBackground(hoverBg);
+                button.setForeground(accent.brighter());
+                button.setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(accent.brighter(), 3, true),
+                        BorderFactory.createEmptyBorder(8, 14, 8, 14)
+                ));
             }
 
+            @Override
             public void mouseExited(MouseEvent e) {
-                button.setForeground(getButtonColor(command));
+                button.setBackground(baseBg);
+                button.setForeground(Color.WHITE);
+                button.setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(accent, 2, true),
+                        BorderFactory.createEmptyBorder(8, 14, 8, 14)
+                ));
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                button.setBackground(pressBg);
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                button.setBackground(hoverBg);
             }
         });
 
@@ -208,21 +288,39 @@ public class SmartHomeGUIView extends JFrame implements View {
             }
         });
 
-        buttonPanel.add(button);
-        currentButtons.add(button);
+        return button;
     }
 
+    // =========================
+    // 🎨 NEON PAIR COLOR SYSTEM
+    // =========================
     private Color getButtonColor(String command) {
-        if (command.equalsIgnoreCase("q") || command.equalsIgnoreCase("0"))
-            return new Color(255, 50, 50);
-        if (command.equalsIgnoreCase("w"))
-            return new Color(0, 255, 120);
-        if (command.equalsIgnoreCase("e"))
-            return new Color(255, 140, 0);
-        if (command.equalsIgnoreCase("1"))
-            return new Color(0, 200, 255);
 
-        return new Color(200, 0, 255);
+        if (command.equalsIgnoreCase("q") || command.equalsIgnoreCase("0"))
+            return new Color(239, 68, 68); // red / orange-red
+
+        if (command.equalsIgnoreCase("w"))
+            return new Color(34, 197, 94); // neon green
+
+        if (command.equalsIgnoreCase("e"))
+            return new Color(59, 130, 246); // neon blue
+
+        if (command.equalsIgnoreCase("1"))
+            return new Color(245, 158, 11); // amber / orange
+
+        if (command.equalsIgnoreCase("2"))
+            return new Color(236, 72, 153); // pink
+
+        if (command.equalsIgnoreCase("3"))
+            return new Color(168, 85, 247); // purple
+
+        if (command.equalsIgnoreCase("4"))
+            return new Color(14, 165, 233); // cyan
+
+        if (command.equalsIgnoreCase("5"))
+            return new Color(250, 204, 21); // yellow
+
+        return new Color(139, 92, 246); // fallback violet
     }
 
     @Override
@@ -233,39 +331,20 @@ public class SmartHomeGUIView extends JFrame implements View {
     public void setCommandHandler(Consumer<String> handler) {
         this.commandHandler = handler;
     }
-    // =========================
-// 🔧 INPUT DIALOG FUNCTIONS
-// =========================
 
+    // INPUT FUNCTIONS (UNCHANGED)
     public String showDeviceNameDialog() {
-        return JOptionPane.showInputDialog(
-                this,
-                "Enter device name:",
-                "Add Device",
-                JOptionPane.QUESTION_MESSAGE
-        );
+        return JOptionPane.showInputDialog(this,"Enter device name:","Add Device",JOptionPane.QUESTION_MESSAGE);
     }
 
     public String showTimeDialog() {
-        return JOptionPane.showInputDialog(
-                this,
-                "Enter time (HH:mm:ss):",
-                "Set Time",
-                JOptionPane.QUESTION_MESSAGE
-        );
+        return JOptionPane.showInputDialog(this,"Enter time (HH:mm:ss):","Set Time",JOptionPane.QUESTION_MESSAGE);
     }
 
     public Integer showTemperatureDialog() {
-        String input = JOptionPane.showInputDialog(
-                this,
-                "Enter temperature:",
-                "Set Temperature",
-                JOptionPane.QUESTION_MESSAGE
-        );
+        String input = JOptionPane.showInputDialog(this,"Enter temperature:","Set Temperature",JOptionPane.QUESTION_MESSAGE);
 
-        if (input == null || input.trim().isEmpty()) {
-            return null;
-        }
+        if (input == null || input.trim().isEmpty()) return null;
 
         try {
             return Integer.parseInt(input.trim());
@@ -276,24 +355,12 @@ public class SmartHomeGUIView extends JFrame implements View {
     }
 
     public void showErrorMessage(String message, String title) {
-        JOptionPane.showMessageDialog(
-                this,
-                message,
-                title,
-                JOptionPane.ERROR_MESSAGE
-        );
+        JOptionPane.showMessageDialog(this,message,title,JOptionPane.ERROR_MESSAGE);
     }
-    
-    public boolean showConfirmDialog(String message, String title) {
-        int result = JOptionPane.showConfirmDialog(
-                this,
-                message,
-                title,
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.QUESTION_MESSAGE
-        );
 
-        return result == JOptionPane.YES_OPTION;
+    public boolean showConfirmDialog(String message, String title) {
+        return JOptionPane.showConfirmDialog(this,message,title,
+                JOptionPane.YES_NO_OPTION,JOptionPane.QUESTION_MESSAGE)
+                == JOptionPane.YES_OPTION;
     }
-    
 }

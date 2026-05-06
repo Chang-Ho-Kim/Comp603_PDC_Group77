@@ -104,7 +104,7 @@ public class CentralController implements ICentralController, IMessageManager, I
                 try {
                     renderCurrentScreen();
                     Thread.sleep(500);
-                    SaveLoadService.saveSystem(system);
+                    //SaveLoadService.saveSystem(system);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     break;
