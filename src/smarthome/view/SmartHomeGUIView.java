@@ -17,6 +17,13 @@ public class SmartHomeGUIView extends JFrame implements View {
     private List<JButton> currentButtons;
     private Consumer<String> commandHandler;
     private String lastOptionsText = null;
+
+    // ➕ ADDED: Titles
+    private JLabel dashboardTitle;
+    private JLabel devicesTitle;
+    
+    private JLabel gifLabel;
+    private JLabel gifLabel1;
     
     // 🎨 Base Theme
     private final Color BG = new Color(10, 10, 20);
@@ -31,7 +38,7 @@ public class SmartHomeGUIView extends JFrame implements View {
         setSize(1100, 720);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-
+        
         currentButtons = new ArrayList<>();
 
         setLayout(new BorderLayout(12, 12));
@@ -49,9 +56,12 @@ public class SmartHomeGUIView extends JFrame implements View {
         dateTimeLabel.setBorder(BorderFactory.createEmptyBorder(12, 10, 12, 10));
         add(dateTimeLabel, BorderLayout.NORTH);
 
-        // ===== CENTER DISPLAY =====
+        // ===== CENTER DISPLAY (WIDER) =====
         displayArea = new JTextArea();
         displayArea.setEditable(false);
+        displayArea.setFocusable(false);
+        displayArea.setHighlighter(null);
+        displayArea.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
         displayArea.setFont(new Font("Consolas", Font.PLAIN, 14));
         displayArea.setBackground(new Color(5, 5, 15));
         displayArea.setForeground(BLUE);
@@ -61,53 +71,111 @@ public class SmartHomeGUIView extends JFrame implements View {
         displayArea.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
         JScrollPane centerPane = new JScrollPane(displayArea);
-        centerPane.setBorder(BorderFactory.createLineBorder(PURPLE));
-        add(centerPane, BorderLayout.CENTER);
+        centerPane.setBorder(BorderFactory.createLineBorder(Color.WHITE,2));
 
-        // ===== LEFT PANEL =====
+        dashboardTitle = new JLabel("DASHBOARD", SwingConstants.CENTER);
+        dashboardTitle.setForeground(new Color(255, 40, 80));
+        dashboardTitle.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        dashboardTitle.setBorder(BorderFactory.createEmptyBorder(5, 5, 10, 5));
+
+        JPanel centerContainer = new JPanel(new BorderLayout());
+        centerContainer.setBackground(BG);
+        centerContainer.add(dashboardTitle, BorderLayout.NORTH);
+        centerContainer.add(centerPane, BorderLayout.CENTER);
+
+        centerContainer.setPreferredSize(new Dimension(650, 0));
+
+        add(centerContainer, BorderLayout.CENTER);
+
+        // ===== LEFT PANEL (WEST) =====
         JPanel leftPanel = new JPanel(new BorderLayout());
         leftPanel.setBackground(BG);
-        leftPanel.setPreferredSize(new Dimension(400, 0));
+        leftPanel.setPreferredSize(new Dimension(225, 0));
         leftPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        JLabel controlTitle = new JLabel("CONTROLS");
-        controlTitle.setForeground(PURPLE);
+        JLabel controlTitle = new JLabel("CONTROLS", SwingConstants.CENTER);
+        controlTitle.setForeground(new Color(255, 40, 80));
         controlTitle.setFont(new Font("Segoe UI", Font.BOLD, 14));
         controlTitle.setBorder(BorderFactory.createEmptyBorder(5, 5, 10, 5));
 
         leftPanel.add(controlTitle, BorderLayout.NORTH);
 
-        buttonPanel = new JPanel(new GridLayout(0, 2, 12, 12));
+        buttonPanel = new JPanel(new GridLayout(0, 1, 12, 12));
         buttonPanel.setBackground(BG);
 
         JScrollPane buttonScroll = new JScrollPane(buttonPanel);
-        buttonScroll.setBorder(BorderFactory.createLineBorder(PURPLE));
+        buttonScroll.setBorder(BorderFactory.createLineBorder(Color.WHITE, 2));
         buttonScroll.getVerticalScrollBar().setUnitIncrement(12);
 
         leftPanel.add(buttonScroll, BorderLayout.CENTER);
 
         add(leftPanel, BorderLayout.WEST);
 
-        // ===== DEVICE PANEL (SOUTH) =====
-        deviceButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
+        // ===== EAST PANEL =====
+        deviceButtonPanel = new JPanel(new GridLayout(0, 1, 12, 12));
         deviceButtonPanel.setBackground(BG);
 
         JScrollPane deviceScroll = new JScrollPane(deviceButtonPanel);
-        deviceScroll.setPreferredSize(new Dimension(0, 120));
-        deviceScroll.setBorder(BorderFactory.createLineBorder(PURPLE));
+        deviceScroll.setPreferredSize(new Dimension(225, 0));
+        deviceScroll.setBorder(BorderFactory.createLineBorder(Color.WHITE,2));
 
+        devicesTitle = new JLabel("DEVICES", SwingConstants.CENTER);
+        devicesTitle.setForeground(new Color(255, 40, 80));
+        devicesTitle.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        devicesTitle.setBorder(BorderFactory.createEmptyBorder(5, 5, 10, 5));
+
+        JPanel eastPanel = new JPanel(new BorderLayout());
+        eastPanel.setBackground(BG);
+
+        // 🔧 FIX: enforce identical structure/padding symmetry with west
+        eastPanel.setPreferredSize(new Dimension(225, 0));
+        eastPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        eastPanel.add(devicesTitle, BorderLayout.NORTH);
+        eastPanel.add(deviceScroll, BorderLayout.CENTER);
+        
+        gifLabel1 = new JLabel();
+
+        ImageIcon gif1 = new ImageIcon("src/smarthome/resources/matrix.gif");
+        Image scaled1 = gif1.getImage().getScaledInstance(160, 520, Image.SCALE_DEFAULT);
+
+        gifLabel1.setIcon(new ImageIcon(scaled1));
+        gifLabel1.setHorizontalAlignment(SwingConstants.CENTER);
+
+        eastPanel.add(gifLabel1, BorderLayout.SOUTH);
+
+        add(eastPanel, BorderLayout.EAST);
+
+        // ===== SOUTH PANEL =====
         statusLabel = new JLabel("System Ready");
         statusLabel.setForeground(PINK);
         statusLabel.setBackground(PANEL);
         statusLabel.setOpaque(true);
         statusLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        JPanel bottomPanel = new JPanel(new BorderLayout());
-        bottomPanel.setBackground(BG);
-        bottomPanel.add(deviceScroll, BorderLayout.CENTER);
-        bottomPanel.add(statusLabel, BorderLayout.SOUTH);
+        dateTimeLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        
+        gifLabel = new JLabel();
 
-        add(bottomPanel, BorderLayout.SOUTH);
+        // Load GIF (put file in project resources or use absolute path)
+        ImageIcon gif = new ImageIcon("src/smarthome/resources/waves.gif");
+        Image scaled = gif.getImage().getScaledInstance(500, 100, Image.SCALE_DEFAULT);
+        gifLabel.setIcon(new ImageIcon(scaled));
+        gifLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        gifLabel.setVerticalAlignment(SwingConstants.CENTER);
+
+        
+        JPanel southLabels = new JPanel(new BorderLayout());
+        southLabels.setBackground(BG);
+
+        statusLabel.setHorizontalAlignment(SwingConstants.LEFT);
+        southLabels.add(statusLabel, BorderLayout.WEST);
+
+        dateTimeLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+        southLabels.add(dateTimeLabel, BorderLayout.EAST);
+        southLabels.add(gifLabel, BorderLayout.CENTER);
+        
+        add(southLabels, BorderLayout.SOUTH);
 
         setVisible(true);
     }
@@ -133,7 +201,6 @@ public class SmartHomeGUIView extends JFrame implements View {
         displayArea.setText(content.toString());
         displayArea.setCaretPosition(0);
 
-        //generateButtonsFromOptions(data.getOptionsContents());
         String options = data.getOptionsContents();
 
         if (options != null && !options.equals(lastOptionsText)) {
@@ -142,47 +209,65 @@ public class SmartHomeGUIView extends JFrame implements View {
         }
     }
 
-    private void generateButtonsFromOptions(String optionsText) {
+        private void generateButtonsFromOptions(String optionsText) {
 
-      buttonPanel.removeAll();
-      deviceButtonPanel.removeAll();
-      currentButtons.clear();
+        buttonPanel.removeAll();
+        deviceButtonPanel.removeAll();
+        currentButtons.clear();
 
-      if (optionsText == null || optionsText.isEmpty()) return;
+        if (optionsText == null || optionsText.isEmpty()) {
+            devicesTitle.setText("");
+            gifLabel.setVisible(true); // show matrix when empty
+            return;
+        }
 
-      String[] lines = optionsText.split("\n");
+        String[] lines = optionsText.split("\n");
 
-      for (String line : lines) {
+        for (String line : lines) {
 
-          line = line.trim();
-          if (line.isEmpty()) continue;
+            line = line.trim();
+            if (line.isEmpty()) continue;
 
-          String[] parts = line.split("\\.", 2);
-          String command = parts[0].trim();
-          String label = parts.length > 1 ? parts[1].trim() : command;
+            String[] parts = line.split("\\.", 2);
+            String command = parts[0].trim();
+            String label = parts.length > 1 ? parts[1].trim() : command;
 
-          if (label.contains("Enter") || label.contains("Type")) continue;
+            if (label.contains("Enter") || label.contains("Type")) continue;
 
-          JButton button = createButton(command, label);
+            JButton button = createButton(command, label);
 
-          if (isSystemButton(label)) {
-              buttonPanel.add(button);
-          } else {
-              deviceButtonPanel.add(button);
-          }
+            if (isSystemButton(label)) {
+                buttonPanel.add(button);
+            } else {
+                deviceButtonPanel.add(button);
+            }
 
-          currentButtons.add(button);
-      }
+            currentButtons.add(button);
+        }
 
-      // 🔧 FIX: ensure repaint happens AFTER Swing layout settles
-      SwingUtilities.invokeLater(() -> {
-          buttonPanel.revalidate();
-          buttonPanel.repaint();
+        if (deviceButtonPanel.getComponentCount() == 0) {
+            devicesTitle.setText("");
+        } else {
+            devicesTitle.setText("DEVICES");
+        }
 
-          deviceButtonPanel.revalidate();
-          deviceButtonPanel.repaint();
-      });
-  }
+        // 🔥 MATRIX GIF TOGGLE LOGIC
+        boolean hasButtons = deviceButtonPanel.getComponentCount() > 0;
+        gifLabel1.setVisible(!hasButtons);
+
+        SwingUtilities.invokeLater(() -> {
+            buttonPanel.revalidate();
+            buttonPanel.repaint();
+
+            deviceButtonPanel.revalidate();
+            deviceButtonPanel.repaint();
+
+            gifLabel1.revalidate();
+            gifLabel1.repaint();
+        });
+    }
+    // ===== EVERYTHING BELOW UNCHANGED =====
+
     private boolean isSystemButton(String label) {
         if (label.equals("Heater")) return true;
         if (label.equals("Air Conditioner")) return true;
@@ -194,7 +279,7 @@ public class SmartHomeGUIView extends JFrame implements View {
         if (label.equals("Alarm Clock")) return true;
         if (label.equals("Turn ON")) return true;
         if (label.equals("Turn OFF")) return true;
-        
+
         String l = label.toLowerCase().trim();
 
         if (l.startsWith("remove")) return true;
@@ -217,9 +302,6 @@ public class SmartHomeGUIView extends JFrame implements View {
                 || l.equals("cancel");
     }
 
-    // =========================
-    // 🎨 MODERN DASHBOARD BUTTONS (NEON PAIRS + SMOOTH EDGES)
-    // =========================
     private JButton createButton(String command, String label) {
 
         JButton button = new JButton(label);
@@ -241,7 +323,6 @@ public class SmartHomeGUIView extends JFrame implements View {
 
         button.setPreferredSize(new Dimension(140, 44));
 
-        // smoother "rounded card" feel via padding + border glow
         button.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(accent, 2, true),
                 BorderFactory.createEmptyBorder(8, 14, 8, 14)
@@ -255,20 +336,12 @@ public class SmartHomeGUIView extends JFrame implements View {
             public void mouseEntered(MouseEvent e) {
                 button.setBackground(hoverBg);
                 button.setForeground(accent.brighter());
-                button.setBorder(BorderFactory.createCompoundBorder(
-                        BorderFactory.createLineBorder(accent.brighter(), 3, true),
-                        BorderFactory.createEmptyBorder(8, 14, 8, 14)
-                ));
             }
 
             @Override
             public void mouseExited(MouseEvent e) {
                 button.setBackground(baseBg);
                 button.setForeground(Color.WHITE);
-                button.setBorder(BorderFactory.createCompoundBorder(
-                        BorderFactory.createLineBorder(accent, 2, true),
-                        BorderFactory.createEmptyBorder(8, 14, 8, 14)
-                ));
             }
 
             @Override
@@ -291,36 +364,48 @@ public class SmartHomeGUIView extends JFrame implements View {
         return button;
     }
 
-    // =========================
-    // 🎨 NEON PAIR COLOR SYSTEM
-    // =========================
     private Color getButtonColor(String command) {
 
         if (command.equalsIgnoreCase("q") || command.equalsIgnoreCase("0"))
-            return new Color(239, 68, 68); // red / orange-red
+            return new Color(239, 68, 68);
 
         if (command.equalsIgnoreCase("w"))
-            return new Color(34, 197, 94); // neon green
+            return new Color(34, 197, 94);
 
         if (command.equalsIgnoreCase("e"))
-            return new Color(59, 130, 246); // neon blue
+            return new Color(59, 130, 246);
+
+        if (command.equalsIgnoreCase("a"))
+            return new Color(255, 75, 75);
+
+        if (command.equalsIgnoreCase("r"))
+            return new Color(57, 255, 20);
+
+        if (command.equalsIgnoreCase("f"))
+            return new Color(0, 255, 255);
+
+        if (command.equalsIgnoreCase("s"))
+            return new Color(255, 255, 0);
+
+        if (command.equalsIgnoreCase("l"))
+            return new Color(0, 128, 255);
 
         if (command.equalsIgnoreCase("1"))
-            return new Color(245, 158, 11); // amber / orange
+            return new Color(245, 158, 11);
 
         if (command.equalsIgnoreCase("2"))
-            return new Color(236, 72, 153); // pink
+            return new Color(236, 72, 153);
 
         if (command.equalsIgnoreCase("3"))
-            return new Color(168, 85, 247); // purple
+            return new Color(168, 85, 247);
 
         if (command.equalsIgnoreCase("4"))
-            return new Color(14, 165, 233); // cyan
+            return new Color(14, 165, 233);
 
         if (command.equalsIgnoreCase("5"))
-            return new Color(250, 204, 21); // yellow
+            return new Color(250, 204, 21);
 
-        return new Color(139, 92, 246); // fallback violet
+        return new Color(139, 92, 246);
     }
 
     @Override
@@ -332,7 +417,6 @@ public class SmartHomeGUIView extends JFrame implements View {
         this.commandHandler = handler;
     }
 
-    // INPUT FUNCTIONS (UNCHANGED)
     public String showDeviceNameDialog() {
         return JOptionPane.showInputDialog(this,"Enter device name:","Add Device",JOptionPane.QUESTION_MESSAGE);
     }
