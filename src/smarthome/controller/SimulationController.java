@@ -49,8 +49,11 @@ public class SimulationController implements IInterfaceController {
                 controller.checkAutomation();
                 break;
             case "3":
-                int temp = controller.setTemp();
-                if (temp != -1) {
+               Integer tempObj = controller.setTemp();
+
+                if (tempObj != null) {
+                    int temp = tempObj;
+
                     simulation.setTemperature(temp);
                     controller.setCurrentMessage("Temperature set to " + temp);
                     controller.addLogMessage("[" + LocalDateTime.now().format(controller.dateTimeFormatter) + "] Temperature set to " + temp + "\n");
