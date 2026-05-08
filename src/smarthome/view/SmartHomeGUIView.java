@@ -24,6 +24,8 @@ public class SmartHomeGUIView extends JFrame implements View {
     
     private JLabel gifLabel;
     private JLabel gifLabel1;
+    private ImageIcon gif;
+    private ImageIcon staticimg;
     
     // 🎨 Base Theme
     private final Color BG = new Color(10, 10, 20);
@@ -158,9 +160,16 @@ public class SmartHomeGUIView extends JFrame implements View {
         gifLabel = new JLabel();
 
         // Load GIF (put file in project resources or use absolute path)
-        ImageIcon gif = new ImageIcon("src/smarthome/resources/waves.gif");
+        gif = new ImageIcon("src/smarthome/resources/waves.gif");
         Image scaled = gif.getImage().getScaledInstance(500, 100, Image.SCALE_DEFAULT);
-        gifLabel.setIcon(new ImageIcon(scaled));
+        
+        staticimg = new ImageIcon("src/smarthome/resources/waves.png");
+        Image scaledstatic = staticimg.getImage().getScaledInstance(500, 100, Image.SCALE_DEFAULT);
+       
+        gif = new ImageIcon(scaled);
+        staticimg = new ImageIcon(scaledstatic);
+
+        gifLabel.setIcon(staticimg);
         gifLabel.setHorizontalAlignment(SwingConstants.CENTER);
         gifLabel.setVerticalAlignment(SwingConstants.CENTER);
 
@@ -174,6 +183,18 @@ public class SmartHomeGUIView extends JFrame implements View {
         dateTimeLabel.setHorizontalAlignment(SwingConstants.RIGHT);
         southLabels.add(dateTimeLabel, BorderLayout.EAST);
         southLabels.add(gifLabel, BorderLayout.CENTER);
+        
+        JPanel musicPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        musicPanel.setBackground(BG);
+        JButton musicBtn = new JButton("Play / Pause Music");
+        musicPanel.add(musicBtn);
+        southLabels.add(musicPanel, BorderLayout.SOUTH);
+        
+        musicBtn.addActionListener(e -> {
+            if (commandHandler != null) {
+                commandHandler.accept("TOGGLE_MUSIC");
+            }
+        });
         
         add(southLabels, BorderLayout.SOUTH);
 
@@ -447,4 +468,12 @@ public class SmartHomeGUIView extends JFrame implements View {
                 JOptionPane.YES_NO_OPTION,JOptionPane.QUESTION_MESSAGE)
                 == JOptionPane.YES_OPTION;
     }
+    
+    public void setMusicPlaying(boolean playing) {
+    if (playing) {
+        gifLabel.setIcon(gif);
+    } else {
+        gifLabel.setIcon(staticimg);
+    }
+}
 }

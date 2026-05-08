@@ -53,6 +53,9 @@ public class CentralController implements ICentralController, IMessageManager, I
     // For backward compatibility
     public final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     
+    private MusicPlayerInGUI musicPlayer;
+    private boolean musicPlaying = false;
+    
     public CentralController(SmartHomeSystem system, View view) {
         this.system = system;
         this.view = (SmartHomeGUIView) view;
@@ -74,6 +77,12 @@ public class CentralController implements ICentralController, IMessageManager, I
         // Log startup
         loggingService.addMessage("[" + dateTimeFormatter.format(LocalDateTime.now()) + "] " +
                 "Smart Home Simulator Started\n");
+        
+        musicPlayer = new MusicPlayerInGUI();
+
+        musicPlayer.load("src/smarthome/resources/waveloom-jazz-no-copyright-516763.wav");
+        
+     
     }
 
     @Override
@@ -119,6 +128,10 @@ public class CentralController implements ICentralController, IMessageManager, I
      * Handle button commands from GUI
      */
     private void handleButtonCommand(String command) {
+        if ("TOGGLE_MUSIC".equals(command)) {
+            handleMusic(command);
+            return;
+        }
         if (currentInterface != null) {
             currentInterface.handleCommand(command);
         }
@@ -320,5 +333,18 @@ public String setDeviceProcedure() {
     
     public ILoggingService getLoggingService() {
         return loggingService;
+    }
+    
+    private void handleMusic(String command) {
+
+        if (musicPlaying) {
+            musicPlayer.pause();
+            musicPlaying = false;
+        } else {
+            musicPlayer.play();
+            musicPlaying = true;
+        }
+        
+        view.setMusicPlaying(musicPlaying); // 👈 THIS is the missing link
     }
 }
