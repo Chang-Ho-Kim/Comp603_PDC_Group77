@@ -46,15 +46,24 @@ public class MusicPlayerInGUI {
         isPaused = false;
     }
 
-    public void loop() {
+  public void loop() {
 
         if (clip == null) return;
 
         if (isPaused) {
+
             clip.setMicrosecondPosition(pausePosition);
+
+            clip.start(); // resume playback
+            clip.loop(Clip.LOOP_CONTINUOUSLY);
+
+        } else {
+
+            clip.setMicrosecondPosition(0);
+
+            clip.loop(Clip.LOOP_CONTINUOUSLY);
         }
 
-        clip.loop(Clip.LOOP_CONTINUOUSLY);
         isPlaying = true;
         isPaused = false;
     }

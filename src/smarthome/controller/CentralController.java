@@ -341,7 +341,7 @@ public String setDeviceProcedure() {
             musicPlayer.pause();
             musicPlaying = false;
         } else {
-            musicPlayer.play();
+            musicPlayer.loop(); // 👈 use loop instead of play
             musicPlaying = true;
         }
         

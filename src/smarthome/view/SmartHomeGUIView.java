@@ -38,6 +38,7 @@ public class SmartHomeGUIView extends JFrame implements View {
 
         setTitle("Smart Home Dashboard");
         setSize(1100, 720);
+        setResizable(false);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         
@@ -85,6 +86,8 @@ public class SmartHomeGUIView extends JFrame implements View {
         centerContainer.add(dashboardTitle, BorderLayout.NORTH);
         centerContainer.add(centerPane, BorderLayout.CENTER);
 
+        
+        
         centerContainer.setPreferredSize(new Dimension(650, 0));
 
         add(centerContainer, BorderLayout.CENTER);
@@ -139,7 +142,7 @@ public class SmartHomeGUIView extends JFrame implements View {
         gifLabel1 = new JLabel();
 
         ImageIcon gif1 = new ImageIcon("src/smarthome/resources/matrix.gif");
-        Image scaled1 = gif1.getImage().getScaledInstance(160, 520, Image.SCALE_DEFAULT);
+        Image scaled1 = gif1.getImage().getScaledInstance(560, 520, Image.SCALE_DEFAULT);
 
         gifLabel1.setIcon(new ImageIcon(scaled1));
         gifLabel1.setHorizontalAlignment(SwingConstants.CENTER);
@@ -221,7 +224,9 @@ public class SmartHomeGUIView extends JFrame implements View {
 
         displayArea.setText(content.toString());
         displayArea.setCaretPosition(0);
-
+        
+        
+        
         String options = data.getOptionsContents();
 
         if (options != null && !options.equals(lastOptionsText)) {
