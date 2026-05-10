@@ -480,5 +480,57 @@ public class SmartHomeGUIView extends JFrame implements View {
     } else {
         gifLabel.setIcon(staticimg);
     }
+    }
+    
+    public Double showElectricityCostDialog() {
+    String input = JOptionPane.showInputDialog(
+            this,
+            "Enter electricity rate ($ per Watt-hour):",
+            "Set Electricity Rate",
+            JOptionPane.QUESTION_MESSAGE
+    );
+
+    if (input == null || input.trim().isEmpty()) return null;
+
+    try {
+        double value = Double.parseDouble(input.trim());
+
+        if (value < 0) {
+            showErrorMessage("Electricity rate cannot be negative", "Input Error");
+            return null;
+        }
+
+        return value;
+
+    } catch (NumberFormatException e) {
+        showErrorMessage("Invalid electricity rate value", "Input Error");
+        return null;
+    }
 }
+
+    public Integer showPowerThresholdDialog() {
+        String input = JOptionPane.showInputDialog(
+                this,
+                "Enter power saver threshold (Watts):",
+                "Set Power Threshold",
+                JOptionPane.QUESTION_MESSAGE
+        );
+
+        if (input == null || input.trim().isEmpty()) return null;
+
+        try {
+            int value = Integer.parseInt(input.trim());
+
+            if (value < 0) {
+                showErrorMessage("Power threshold cannot be negative", "Input Error");
+                return null;
+            }
+
+            return value;
+
+        } catch (NumberFormatException e) {
+            showErrorMessage("Invalid power threshold value", "Input Error");
+            return null;
+        }
+    }
 }
