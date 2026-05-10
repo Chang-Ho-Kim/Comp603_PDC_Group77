@@ -84,4 +84,16 @@ public abstract class Device implements Serializable, ISwitchable, IDeviceUIHand
     public boolean handleDeviceCommand(String command, smarthome.controller.IInputHandler handler) {
         return false; // Default: device doesn't handle device-specific commands
     }
+    
+    public void resetUsageHistory() {
+        usageHistory.clear();
+        currentUsage = null;
+    }
+    
+    public void startFreshUsageTrackingIfOn() {
+        if (isOn) {
+            currentUsage = new UsageRecord(LocalDateTime.now());
+            usageHistory.add(currentUsage);
+        }
+    }
 }

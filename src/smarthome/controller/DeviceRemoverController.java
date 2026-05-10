@@ -29,6 +29,9 @@ public class DeviceRemoverController implements IInterfaceController {
             menu.append("No devices to remove.\n");
         } else {
             menu.append("Select a device to remove:\n\n");
+
+            menu.append("A. Remove ALL Devices\n\n");
+
             int i = 1;
             for (Device d : deviceList) {
                 menu.append(i)
@@ -44,7 +47,6 @@ public class DeviceRemoverController implements IInterfaceController {
         return menu.toString();
     }
 
-    // 🔧 FIX: GUI now generates clickable buttons
     @Override
     public String getOptionsContents() {
 
@@ -55,6 +57,8 @@ public class DeviceRemoverController implements IInterfaceController {
         }
 
         StringBuilder options = new StringBuilder();
+
+        options.append("A. Remove ALL Devices\n");
 
         int i = 1;
         for (Device d : deviceList) {
@@ -79,6 +83,48 @@ public class DeviceRemoverController implements IInterfaceController {
             return;
         }
 
+        // =========================
+        // 🚨 REMOVE ALL DEVICES
+        // =========================
+        if (command.equalsIgnoreCase("A")) {
+
+            deviceList = new ArrayList<>(system.getAllDevices());
+
+            if (deviceList.isEmpty()) {
+                controller.setCurrentMessage("No devices to remove");
+                controller.showDashboard();
+                return;
+            }
+
+            boolean confirm = view.showConfirmDialog(
+                    "Remove ALL devices?",
+                    "Confirm Bulk Removal"
+            );
+
+            if (confirm) {
+
+                for (Device d : deviceList) {
+                    system.removeDevice(d.getName());
+
+                    controller.addLogMessage(
+                        "[" + LocalDateTime.now().format(controller.dateTimeFormatter) + "] "
+                        + d.getName() + " was removed\n"
+                    );
+                }
+
+                controller.setCurrentMessage("All devices removed");
+
+            } else {
+                controller.setCurrentMessage("Bulk removal cancelled");
+            }
+
+            controller.showDashboard();
+            return;
+        }
+
+        // =========================
+        // 🧩 REMOVE SINGLE DEVICE
+        // =========================
         try {
             int index = Integer.parseInt(command);
 

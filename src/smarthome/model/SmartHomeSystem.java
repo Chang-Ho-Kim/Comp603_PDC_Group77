@@ -71,4 +71,14 @@ public class SmartHomeSystem implements Serializable {
     }
     
     // Device and system management methods
+     public void clearRemovedDevices() {
+        removedDevices.clear();
+    }
+     
+    public void resetAllDeviceUsageHistory() {
+        for (Device d : devices.values()) {
+            d.resetUsageHistory();
+            d.startFreshUsageTrackingIfOn();
+        }
+    }
 }

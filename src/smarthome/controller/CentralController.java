@@ -347,4 +347,12 @@ public String setDeviceProcedure() {
         
         view.setMusicPlaying(musicPlaying); // 👈 THIS is the missing link
     }
+    
+    public Double setElectricityCost() {
+    return view.showElectricityCostDialog();
+}
+
+public Integer setPowerThreshold() {
+    return view.showPowerThresholdDialog();
+}
 }
