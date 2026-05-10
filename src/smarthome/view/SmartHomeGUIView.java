@@ -141,8 +141,8 @@ public class SmartHomeGUIView extends JFrame implements View {
         
         gifLabel1 = new JLabel();
 
-        ImageIcon gif1 = new ImageIcon("src/smarthome/resources/matrix.gif");
-        Image scaled1 = gif1.getImage().getScaledInstance(560, 520, Image.SCALE_DEFAULT);
+        ImageIcon gif1 = new ImageIcon("src/smarthome/resources/coffee.gif");
+        Image scaled1 = gif1.getImage().getScaledInstance(250, 480, Image.SCALE_DEFAULT);
 
         gifLabel1.setIcon(new ImageIcon(scaled1));
         gifLabel1.setHorizontalAlignment(SwingConstants.CENTER);
