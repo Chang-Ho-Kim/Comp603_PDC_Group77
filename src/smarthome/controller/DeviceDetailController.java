@@ -50,6 +50,7 @@ public class DeviceDetailController implements IInterfaceController {
     @Override
     public String getOptionsContents() {
         StringBuilder options = new StringBuilder("1. Turn ON\n2. Turn OFF\n");
+        options.append("3. Set Electricity Rate\n");
         options.append(device.getAdditionalOptions());
         options.append("0. Back to Dashboard");
         return options.toString();
@@ -58,13 +59,19 @@ public class DeviceDetailController implements IInterfaceController {
     @Override
     public void handleCommand(String command) {
         switch (command) {
+
             case "1":
                 handleTurnOn();
                 break;
+
             case "2":
                 handleTurnOff();
                 break;
+
             case "3":
+                setDeviceElectricityRate();
+                break;
+
             case "4":
             case "5":
                 boolean handled = device.handleDeviceCommand(command, controller);
@@ -75,12 +82,44 @@ public class DeviceDetailController implements IInterfaceController {
                     controller.setCurrentMessage("Failed to update " + device.getName());
                 }
                 break;
+
             case "0":
                 controller.showDashboard();
                 return;
+
             default:
                 view.showInvalidOption();
         }
+    }
+
+    // =========================
+    // ⚡ NEW FEATURE
+    // =========================
+    private void setDeviceElectricityRate() {
+
+        Integer newRate = view.showElectricityRateDialog(); 
+        // reuse dialog style (you can rename later if you want)
+
+        if (newRate == null) {
+            controller.setCurrentMessage("Electricity rate update cancelled");
+            return;
+        }
+
+        if (newRate < 0) {
+            view.showErrorMessage("Rate cannot be negative", "Input Error");
+            return;
+        }
+
+        device.setElectricityUsage(newRate);
+
+        controller.setCurrentMessage(
+                device.getName() + " electricity rate set to " + newRate + "W"
+        );
+
+        controller.addLogMessage(
+                "[" + controller.dateTimeFormatter.format(LocalDateTime.now()) + "] "
+                        + device.getName() + " electricity rate changed to " + newRate + "W\n"
+        );
     }
 
     private void handleTurnOn() {

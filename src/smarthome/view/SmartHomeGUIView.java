@@ -533,4 +533,22 @@ public class SmartHomeGUIView extends JFrame implements View {
             return null;
         }
     }
+    
+    public Integer showElectricityRateDialog() {
+    String input = JOptionPane.showInputDialog(
+            this,
+            "Enter electricity rate (Watts/Hour):",
+            "Set Electricity Rate",
+            JOptionPane.QUESTION_MESSAGE
+    );
+
+    if (input == null || input.trim().isEmpty()) return null;
+
+    try {
+        return Integer.parseInt(input.trim());
+    } catch (NumberFormatException e) {
+        showErrorMessage("Invalid electricity rate", "Input Error");
+        return null;
+    }
+}
 }

@@ -33,12 +33,14 @@ public class SimulationController implements IInterfaceController {
         "3. Set Custom Temperature\n"+
         "4. Set Electricity Rate\n"+
         "5. Set Power Saver Threshold\n"+
+        "6. Reset Billing\n"+
         "0. Back to Dashboard";
     }
 
     @Override
     public void handleCommand(String command){
         switch(command){
+
             case "1":
                 simulation.setTemperature(simulation.getTemperature()+1);
                 controller.setCurrentMessage("Temperature increased to " + simulation.getTemperature());
@@ -92,6 +94,39 @@ public class SimulationController implements IInterfaceController {
                 }
                 break;
 
+            // =========================
+            // 🗑 CLEAR REMOVED DEVICES
+            // =========================
+            case "6":
+
+            int confirm = JOptionPane.showConfirmDialog(
+                    view,
+                    "Reset billing?",
+                    "Confirm System Reset",
+                    JOptionPane.YES_NO_OPTION
+            );
+
+            if (confirm == JOptionPane.YES_OPTION) {
+
+                // 1. clear removed devices (your "billing history" concept)
+                controller.getSystem().clearRemovedDevices();
+
+                // 2. reset usage history of ALL active devices
+                controller.getSystem().resetAllDeviceUsageHistory();
+
+                controller.setCurrentMessage("System billing and usage history reset");
+
+                controller.addLogMessage(
+                    "[" + LocalDateTime.now().format(controller.dateTimeFormatter) + "] System billing and usage history reset\n"
+                );
+
+                controller.checkAutomation();
+
+            } else {
+                controller.setCurrentMessage("Reset billing cancelled");
+            }
+
+            break;
             case "0":
                 controller.showDashboard();
                 controller.checkAutomation();
