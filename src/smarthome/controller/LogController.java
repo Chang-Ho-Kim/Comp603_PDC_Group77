@@ -21,17 +21,24 @@ public class LogController implements IInterfaceController {
     private IBillingService billingService;
     private DecimalFormat currencyFormatter = new DecimalFormat("0.000000000");
 
-    public LogController(CentralController controller, SmartHomeSystem system, SmartHomeGUIView view){
+    public LogController(CentralController controller,
+                         SmartHomeSystem system,
+                         SmartHomeGUIView view) {
+
         this.controller = controller;
         this.view = view;
         this.system = system;
 
-        this.billingService = DependencyContainer.getInstance().getBillingService();
+        this.billingService =
+                DependencyContainer.getInstance().getBillingService();
     }
 
     @Override
-    public String getMenuContents(){
-        String logs = controller.getLoggingService().getMessages().toString();
+    public String getMenuContents() {
+
+        String logs = controller.getLoggingService()
+                .getMessages()
+                .toString();
 
         if (logs.isEmpty()) {
             return "=== APPLICATION LOG ===\n\nNo logs yet.";
@@ -43,22 +50,22 @@ public class LogController implements IInterfaceController {
     @Override
     public String getOptionsContents() {
         return "1. Delete Log\n" +
-                "2. Export Log\n" +
-                "3. Export Device Summary\n" +
-                "0. Back to Dashboard";
+               "2. Export Log\n" +
+               "3. Export Device Summary\n" +
+               "0. Back to Dashboard";
     }
 
     @Override
-    public void handleCommand(String command){
+    public void handleCommand(String command) {
 
-        switch(command){
+        switch (command) {
 
             case "0":
                 controller.showDashboard();
                 return;
 
             case "1":
-                if(view.showConfirmDialog("Delete all logs?", "Confirm")) {
+                if (view.showConfirmDialog("Delete all logs?", "Confirm")) {
                     controller.getLoggingService().clearMessages();
                     controller.setCurrentMessage("Log deleted");
                 } else {
@@ -86,7 +93,6 @@ public class LogController implements IInterfaceController {
 
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Save Log File");
-
         fileChooser.setSelectedFile(new File("Log.txt"));
 
         int result = fileChooser.showSaveDialog(view);
@@ -101,13 +107,21 @@ public class LogController implements IInterfaceController {
 
             try (FileWriter writer = new FileWriter(file)) {
 
-                writer.write(controller.getLoggingService().getMessages().toString());
+                writer.write(
+                        controller.getLoggingService()
+                                .getMessages()
+                                .toString()
+                );
 
-                controller.setCurrentMessage("Log exported to " + file.getName());
+                controller.setCurrentMessage(
+                        "Log exported to " + file.getName()
+                );
 
             } catch (IOException e) {
 
-                controller.setCurrentMessage("Export failed: " + e.getMessage());
+                controller.setCurrentMessage(
+                        "Export failed: " + e.getMessage()
+                );
             }
 
         } else {
@@ -123,7 +137,6 @@ public class LogController implements IInterfaceController {
 
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Save Device Summary");
-
         fileChooser.setSelectedFile(new File("DeviceSummary.txt"));
 
         int result = fileChooser.showSaveDialog(view);
@@ -156,7 +169,8 @@ public class LogController implements IInterfaceController {
                                     currencyFormatter.format(
                                             billingService.calculateDeviceBill(
                                                     device,
-                                                    system.getSimulation().getElectricityCost()
+                                                    system.getSimulation()
+                                                           .getElectricityCost()
                                             )
                                     )
                             )

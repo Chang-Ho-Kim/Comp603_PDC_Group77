@@ -1,53 +1,64 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package smarthome.model;
 
-import java.io.Serializable;
 import java.time.LocalTime;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import smarthome.dao.DeviceUsageDAO;
 
-/**
- *
- * @author rlack
- */
+public abstract class Device implements ISwitchable, IDeviceUIHandler {
 
-public abstract class Device implements Serializable, ISwitchable, IDeviceUIHandler {
     protected String name;
     protected boolean isOn;
     protected String type;
     protected int electricityUsage;
-    private List<UsageRecord> usageHistory = new ArrayList<>();
-    private UsageRecord currentUsage;
+    protected String id;
     
-    public Device(String name){ this.name = name; }
+    private static final DeviceUsageDAO usageDAO = new DeviceUsageDAO();
 
+    public Device(String name) {
+        this.name = name;
+    }
+    
+    public Device(String id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
+    public String getId() {
+        return id;
+    }
+    
+    public void setId(String id) {
+    this.id = id;
+}
+    
     @Override
-    public void turnOn(){ if (!isOn) {
-        isOn = true;
-
-        currentUsage = new UsageRecord(LocalDateTime.now());
-        usageHistory.add(currentUsage);
-    } }
-
-    @Override
-    public void turnOff(){ if (isOn) {
-        isOn = false;
-
-        if (currentUsage != null) {
-            currentUsage.endRecord(LocalDateTime.now());
+    public void turnOn() {
+        if (!isOn) {
+            isOn = true;
+            usageDAO.startUsage(name);
         }
-    } }
+    }
 
     @Override
-    public boolean isOn(){ return isOn; }
+    public void turnOff() {
+        if (isOn) {
+            isOn = false;
+            usageDAO.endUsage(name);
+        }
+    }
 
-    public String getName(){ return name; }
-    
-    public String getType(){ return type; }
+    @Override
+    public boolean isOn() {
+        return isOn;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getType() {
+        return type;
+    }
 
     public int getElectricityUsage() {
         return electricityUsage;
@@ -56,44 +67,39 @@ public abstract class Device implements Serializable, ISwitchable, IDeviceUIHand
     public void setElectricityUsage(int electricityUsage) {
         this.electricityUsage = electricityUsage;
     }
-    
-    public void checkAutomation(int temp, LocalTime time){
-        
+
+    public void checkAutomation(int temp, LocalTime time) {
+        // default
     }
 
     public boolean isAutoOn() {
         return false;
     }
-    
-    public List<UsageRecord> getUsageHistory() {
-        return usageHistory;
-    }
-    
-    // IDeviceUIHandler default implementations
+
     @Override
     public String getAdditionalMenuContent() {
-        return ""; // Default: no additional menu content
+        return "";
     }
-    
+
     @Override
     public String getAdditionalOptions() {
-        return ""; // Default: no additional options
+        return "";
     }
-    
+
     @Override
     public boolean handleDeviceCommand(String command, smarthome.controller.IInputHandler handler) {
-        return false; // Default: device doesn't handle device-specific commands
+        return false;
     }
-    
-    public void resetUsageHistory() {
-        usageHistory.clear();
-        currentUsage = null;
-    }
-    
-    public void startFreshUsageTrackingIfOn() {
-        if (isOn) {
-            currentUsage = new UsageRecord(LocalDateTime.now());
-            usageHistory.add(currentUsage);
+
+    /**
+     * IMPORTANT FIX:
+     * restore ON state must also re-open usage tracking in DB
+     */
+    public void restoreState(boolean on) {
+        this.isOn = on;
+
+        if (on) {
+            usageDAO.startUsage(name);
         }
     }
 }

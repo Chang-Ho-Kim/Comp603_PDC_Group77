@@ -8,10 +8,10 @@ package smarthome.model;
  *
  * @author rlack
  */
-import java.io.Serializable;
+
 import java.time.LocalDateTime;
 
-public class UsageRecord implements Serializable{
+public class UsageRecord {
     private LocalDateTime start;
     private LocalDateTime end;
 
