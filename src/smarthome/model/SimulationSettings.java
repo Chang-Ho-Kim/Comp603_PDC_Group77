@@ -4,7 +4,6 @@
  */
 package smarthome.model;
 
-import java.io.Serializable;
 
 
 /**
@@ -12,7 +11,7 @@ import java.io.Serializable;
  * @author rlack
  */
 
-public class SimulationSettings implements Serializable {
+public class SimulationSettings {
     private int temperature = 20;
     private double electricityCost = 0.00039;
     private int powerThreshold = 6000;

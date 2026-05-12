@@ -104,7 +104,7 @@ public class DeviceRemoverController implements IInterfaceController {
             if (confirm) {
 
                 for (Device d : deviceList) {
-                    system.removeDevice(d.getName());
+                    system.removeDevice(d.getId());
 
                     controller.addLogMessage(
                         "[" + LocalDateTime.now().format(controller.dateTimeFormatter) + "] "
@@ -141,7 +141,7 @@ public class DeviceRemoverController implements IInterfaceController {
                 );
 
                 if (confirm) {
-                    system.removeDevice(deviceName);
+                    system.removeDevice(device.getId());
 
                     controller.setCurrentMessage(deviceName + " removed");
 

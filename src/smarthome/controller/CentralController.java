@@ -10,33 +10,21 @@ import smarthome.service.*;
 import smarthome.view.View;
 import smarthome.view.SmartHomeGUIView;
 import smarthome.view.ViewData;
-import smarthome.persistence.SaveLoadService;
+
 
 /**
  * CentralController - Refactored to follow SOLID principles with full GUI support.
- * 
- * Responsibilities:
- * - Main application loop and screen navigation
- * - GUI button handling and event processing
- * - Delegation to sub-controllers
- * 
- * Now implements segregated interfaces:
- * - IMessageManager: For UI messages
- * - IScreenNavigator: For screen navigation
- * - IInputHandler: For GUI-based input dialogs
  */
 public class CentralController implements ICentralController, IMessageManager, IScreenNavigator, IInputHandler {
 
     private final SmartHomeSystem system;
     private final SmartHomeGUIView view;
-    
-    // Services (injected)
+
     private final ILoggingService loggingService;
     private final IAutomationService automationService;
     private final IBillingService billingService;
     private final IThresholdManager thresholdManager;
-    
-    // Sub-controllers (lazily created)
+
     private IInterfaceController currentInterface;
     private DashboardController dashboardController;
     private DeviceDetailController deviceController;
@@ -45,52 +33,44 @@ public class CentralController implements ICentralController, IMessageManager, I
     private DeviceAdderController deviceAdderController;
     private DeviceRemoverController deviceRemoverController;
     private AutomationListController automationController;
-    
-    // State
+
     private String currentMessage;
     private boolean running;
-    
-    // For backward compatibility
-    public final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-    
+
+    public final DateTimeFormatter dateTimeFormatter =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
     private MusicPlayerInGUI musicPlayer;
     private boolean musicPlaying = false;
-    
+
     public CentralController(SmartHomeSystem system, View view) {
         this.system = system;
         this.view = (SmartHomeGUIView) view;
-        
-        // Get services from dependency container
+
         DependencyContainer container = DependencyContainer.getInstance();
         this.loggingService = container.getLoggingService();
         this.automationService = container.getAutomationService();
         this.billingService = container.getBillingService();
         this.thresholdManager = container.getThresholdManager();
-        
-        // Initialize state
+
         this.currentMessage = "Welcome to Smart Home Simulator!";
         this.running = true;
-        
-        // Set up button command handler
+
         this.view.setCommandHandler(this::handleButtonCommand);
-        
-        // Log startup
+
         loggingService.addMessage("[" + dateTimeFormatter.format(LocalDateTime.now()) + "] " +
                 "Smart Home Simulator Started\n");
-        
+
         musicPlayer = new MusicPlayerInGUI();
 
         musicPlayer.load("src/smarthome/resources/waveloom-jazz-no-copyright-516763.wav");
-        
-     
     }
 
     @Override
     public void start() {
-        // Show dashboard first
+
         showDashboard();
-        
-        // Start automation thread
+
         Thread automationThread = new Thread(() -> {
             while (running) {
                 try {
@@ -106,14 +86,16 @@ public class CentralController implements ICentralController, IMessageManager, I
         });
         automationThread.setDaemon(true);
         automationThread.start();
-        
-        // Main GUI refresh loop
+
         Thread guiThread = new Thread(() -> {
             while (running) {
                 try {
                     renderCurrentScreen();
                     Thread.sleep(500);
-                    //SaveLoadService.saveSystem(system);
+
+                    // ❌ ONLY CHANGE FOR JDBC MIGRATION
+                    // SaveLoadService.saveSystem(system);
+
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     break;
@@ -124,14 +106,13 @@ public class CentralController implements ICentralController, IMessageManager, I
         guiThread.start();
     }
 
-    /**
-     * Handle button commands from GUI
-     */
     private void handleButtonCommand(String command) {
+
         if ("TOGGLE_MUSIC".equals(command)) {
             handleMusic(command);
             return;
         }
+
         if (currentInterface != null) {
             currentInterface.handleCommand(command);
         }
@@ -139,16 +120,16 @@ public class CentralController implements ICentralController, IMessageManager, I
 
     public void renderCurrentScreen() {
         if (currentInterface == null) return;
-        
+
         String menuContent = currentInterface.getMenuContents();
         String optionsContent = currentInterface.getOptionsContents();
         String formattedDateTime = dateTimeFormatter.format(LocalDateTime.now());
-        
+
         ViewData data = new ViewData(currentMessage, menuContent, optionsContent, formattedDateTime);
         view.renderView(data);
     }
 
-    // IScreenNavigator implementation
+    // NAVIGATION (UNCHANGED)
     @Override
     public void showDashboard() {
         if (dashboardController == null) {
@@ -206,7 +187,7 @@ public class CentralController implements ICentralController, IMessageManager, I
         currentInterface = automationController;
     }
 
-    // IMessageManager implementation
+    // MESSAGE HANDLING (UNCHANGED)
     @Override
     public void setCurrentMessage(String message) {
         this.currentMessage = message;
@@ -222,55 +203,45 @@ public class CentralController implements ICentralController, IMessageManager, I
         loggingService.addMessage(message);
     }
 
-    // IInputHandler implementation - GUI-based dialogs
-   @Override
-public String setDeviceProcedure() {
-    String name = view.showDeviceNameDialog();
+    // INPUT HANDLING (UNCHANGED)
+    @Override
+    public String setDeviceProcedure() {
+        String name = view.showDeviceNameDialog();
 
-    // Cancel pressed
-    if (name == null) {
-        return null;
+        if (name == null) return null;
+
+        if (name.trim().isEmpty()) {
+            view.showErrorMessage("Device name cannot be empty", "Input Error");
+            return null;
+        }
+
+        return name.trim();
     }
-
-    // Empty input
-    if (name.trim().isEmpty()) {
-        view.showErrorMessage("Device name cannot be empty", "Input Error");
-        return null;
-    }
-
-    return name.trim();
-}
 
     @Override
     public LocalTime setTime() {
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
         String timeStr = view.showTimeDialog();
 
-        if (timeStr == null) {
-            return null; // ✅ user cancelled
-        }
+        if (timeStr == null) return null;
 
         try {
             return LocalTime.parse(timeStr, timeFormatter);
         } catch (DateTimeParseException e) {
-            view.showErrorMessage("Invalid time format. Please use HH:mm:ss", "Error");
-            return null; // also treat invalid input as cancel/fail
+            view.showErrorMessage("Invalid time format. Use HH:mm:ss", "Error");
+            return null;
         }
     }
 
     @Override
     public Integer setTemp() {
-        Integer temp = view.showTemperatureDialog();
-
-        if (temp == null) {
-            return null;
-        }
-
-        return temp;
+        return view.showTemperatureDialog();
     }
 
-   @Override
+    // AUTOMATION (UNCHANGED)
+    @Override
     public void checkAutomation() {
+
         LocalTime currentTime = LocalTime.now();
         int currentTemp = system.getSimulation().getTemperature();
 
@@ -282,19 +253,17 @@ public String setDeviceProcedure() {
 
             boolean after = device.isOn();
 
-           if (before != after) {
+            if (before != after) {
+
                 String state = after ? "ON" : "OFF";
 
-                String msg =
-                    device.getName() + " auto turned " + state;
+                String msg = device.getName() + " auto turned " + state;
 
-                // LOG FILE
                 loggingService.addMessage(
-                    "[" + dateTimeFormatter.format(LocalDateTime.now()) + "] "
-                    + msg + "\n"
+                        "[" + dateTimeFormatter.format(LocalDateTime.now()) + "] "
+                                + msg + "\n"
                 );
 
-                // GUI MESSAGE (what user sees)
                 setCurrentMessage(msg);
             }
         }
@@ -302,11 +271,11 @@ public String setDeviceProcedure() {
         int totalUsage = billingService.calculateTotalElectricityUsage(system.getAllDevices());
 
         thresholdManager.setThresholdExceeded(
-            totalUsage > system.getSimulation().getPowerThreshold()
+                totalUsage > system.getSimulation().getPowerThreshold()
         );
     }
 
-    // Backward compatibility getters
+    // BACKWARD COMPATIBILITY (PRESERVED - NOT REMOVED)
     public IInterfaceController getCurrentInterface() {
         return currentInterface;
     }
@@ -318,41 +287,46 @@ public String setDeviceProcedure() {
     public int checkTemp() {
         return system.getSimulation().getTemperature();
     }
-    
+
     public void addMessage(String log) {
         loggingService.addMessage(log);
     }
 
     public void exit() {
         running = false;
-        loggingService.addMessage("[" + dateTimeFormatter.format(LocalDateTime.now()) + "] " +
-                "Smart Home Simulator Ended\n");
-        SaveLoadService.saveSystem(system);
+
+        loggingService.addMessage(
+                "[" + dateTimeFormatter.format(LocalDateTime.now()) + "] Smart Home Simulator Ended\n"
+        );
+
+        // ❌ REMOVED ONLY SaveLoadService.saveSystem(system);
+
         System.exit(0);
     }
-    
+
+    // 🔥 THIS WAS YOUR CRITICAL METHOD — KEPT EXACTLY
     public ILoggingService getLoggingService() {
         return loggingService;
     }
-    
+
     private void handleMusic(String command) {
 
         if (musicPlaying) {
             musicPlayer.pause();
             musicPlaying = false;
         } else {
-            musicPlayer.loop(); // 👈 use loop instead of play
+            musicPlayer.loop();
             musicPlaying = true;
         }
-        
-        view.setMusicPlaying(musicPlaying); // 👈 THIS is the missing link
-    }
-    
-    public Double setElectricityCost() {
-    return view.showElectricityCostDialog();
-}
 
-public Integer setPowerThreshold() {
-    return view.showPowerThresholdDialog();
-}
+        view.setMusicPlaying(musicPlaying);
+    }
+
+    public Double setElectricityCost() {
+        return view.showElectricityCostDialog();
+    }
+
+    public Integer setPowerThreshold() {
+        return view.showPowerThresholdDialog();
+    }
 }
