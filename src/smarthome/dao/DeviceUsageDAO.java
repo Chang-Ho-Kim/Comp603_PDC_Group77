@@ -59,7 +59,20 @@ public class DeviceUsageDAO {
             e.printStackTrace();
         }
     }
+    
+    public void deleteByDeviceId(String deviceId) {
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement ps = conn.prepareStatement(
+                     "DELETE FROM device_usage WHERE device_id = ?")) {
 
+            ps.setString(1, deviceId);
+            ps.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    
     public void deleteAll() {
 
         try (Connection conn = DatabaseManager.getConnection();

@@ -99,7 +99,7 @@ public abstract class SensorDevice extends Device implements ISensorable {
     @Override
     public boolean handleDeviceCommand(String command, IInputHandler handler) {
         switch (command) {
-
+            /*
             case "3": {
                 Integer newLower = handler.setTemp();
                 if (newLower == null) return false;
@@ -113,7 +113,7 @@ public abstract class SensorDevice extends Device implements ISensorable {
                 }
                 return true;
             }
-
+            */
             case "4": {
                 Integer newUpper = handler.setTemp();
                 if (newUpper == null) return false;

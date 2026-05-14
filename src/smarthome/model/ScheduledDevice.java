@@ -104,13 +104,13 @@ public abstract class ScheduledDevice extends Device implements ISchedulable {
     
     @Override
     public String getAdditionalOptions() {
-        return "3. Set scheduled start time\n4. Set scheduled end time\n5. Set Schedule Mode On/Off\n";
+        return "4. Set scheduled start time\n5. Set scheduled end time\n6. Set Schedule Mode On/Off\n";
     }
     
     @Override
     public boolean handleDeviceCommand(String command, IInputHandler handler) {
         switch (command) {
-            case "3":
+            case "4":
                 LocalTime newStart = handler.setTime();
                 if (newStart == null) return false; // cancel → do nothing
 
@@ -122,7 +122,7 @@ public abstract class ScheduledDevice extends Device implements ISchedulable {
                     return false;
                 }
                 return true;
-            case "4":
+            case "5":
                 LocalTime newEnd = handler.setTime();
                 if (newEnd == null) return false; // cancel → do nothing
 
@@ -134,7 +134,7 @@ public abstract class ScheduledDevice extends Device implements ISchedulable {
                     return false;
                 }
                 return true;
-            case "5":
+            case "6":
                 setScheduleOn(!isScheduleOn());
                 return true;
                 
