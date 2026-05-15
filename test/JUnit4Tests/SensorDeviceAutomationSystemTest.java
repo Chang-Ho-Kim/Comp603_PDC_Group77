@@ -13,7 +13,7 @@ import static org.junit.Assert.*;
 import smarthome.dao.DeviceUsageDAO;
 
 /**
- * DeviceAutomationSystemTest
+ * SensorDeviceAutomationSystemTest
  *
  * This test verifies the full automation pipeline of the Smart Home system.
  *
@@ -28,7 +28,7 @@ import smarthome.dao.DeviceUsageDAO;
  * Note: mockView had to be used as the test uses the system's automation behavior (instead of directly using functions) and view cannot be null
  *       The test actually has nothing to do with the view GUI. 
  */
-public class DeviceAutomationSystemTest {
+public class SensorDeviceAutomationSystemTest {
 
     private DeviceDAO dao;
     private DeviceUsageDAO usageDAO;

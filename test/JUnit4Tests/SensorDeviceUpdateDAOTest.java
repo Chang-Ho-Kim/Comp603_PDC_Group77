@@ -10,10 +10,10 @@ import smarthome.model.Device;
 import smarthome.model.Heater;
 
 /**
- * HeaterDAOTest
+ * SensorDeviceUpdateDAOTest
  *
  * This test class verifies the correct update behavior
- * of Heater devices within the DeviceDAO layer.
+ * of Sensor devices (using Heater device for test) within the DeviceDAO layer.
  *
  * The tests validate:
  * - Persistence of Heater threshold values
@@ -22,7 +22,7 @@ import smarthome.model.Heater;
  * - Proper cleanup of database test data
  */
 
-public class HeaterUpdateDAOTest {
+public class SensorDeviceUpdateDAOTest {
 
     private DeviceDAO dao;
 
