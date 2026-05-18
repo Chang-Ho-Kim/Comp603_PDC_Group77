@@ -40,6 +40,7 @@ public class ScheduledDeviceAutomationSystemTest {
     private SmartHomeSystem system;
     private CentralController controller;
     private SmartHomeGUIView mockView;
+    private String testId;
 
     @Before
     public void setUp() {
@@ -57,7 +58,13 @@ public class ScheduledDeviceAutomationSystemTest {
 
     @After
     public void tearDown() {
-        // No global teardown required
+
+        // cleanup test data after each test
+        if (testId != null) {
+            dao.delete(testId);
+            system.removeDevice(testId);
+            usageDAO.deleteByDeviceId(testId);
+        }
     }
 
     /**
@@ -74,7 +81,7 @@ public class ScheduledDeviceAutomationSystemTest {
     @Test
     public void testAlarmClockScheduleAutomation() {
 
-        String testId = "TEST_SCHEDULE_" + System.currentTimeMillis();
+        testId = "TEST_SCHEDULE_" + System.currentTimeMillis();
 
         // CREATE ALARM CLOCK DEVICE
         AlarmClock alarmClock = new AlarmClock("Morning Alarm");
@@ -112,10 +119,5 @@ public class ScheduledDeviceAutomationSystemTest {
                 "AlarmClock should turn OFF outside scheduled time",
                 alarmClock.isOn()
         );
-
-        // CLEANUP TEST DATA
-        dao.delete(testId);
-        system.removeDevice(testId);
-        usageDAO.deleteByDeviceId(testId);
     }
 }

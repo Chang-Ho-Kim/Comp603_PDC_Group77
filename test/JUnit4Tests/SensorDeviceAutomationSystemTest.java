@@ -35,6 +35,7 @@ public class SensorDeviceAutomationSystemTest {
     private SmartHomeSystem system;
     private CentralController controller;
     private SmartHomeGUIView mockView;
+    private String testId;
 
     @Before
     public void setUp() {
@@ -51,7 +52,13 @@ public class SensorDeviceAutomationSystemTest {
 
     @After
     public void tearDown() {
-        // No global teardown required
+
+        // cleanup test data after each test
+        if (testId != null) {
+            dao.delete(testId);
+            system.removeDevice(testId);
+            usageDAO.deleteByDeviceId(testId);
+        }
     }
 
     /**
@@ -69,7 +76,7 @@ public class SensorDeviceAutomationSystemTest {
     @Test
     public void testHeaterAutomationThroughCentralController() {
 
-        String testId = "TEST_AUTO_" + System.currentTimeMillis();
+        testId = "TEST_AUTO_" + System.currentTimeMillis();
 
         // CREATE HEATER DEVICE
         Heater heater = new Heater("Automation Heater");
@@ -102,10 +109,5 @@ public class SensorDeviceAutomationSystemTest {
         controller.checkAutomation();
 
         assertFalse(heater.isOn());
-
-        // CLEANUP TEST DATA
-        dao.delete(testId);
-        system.removeDevice(testId);
-        usageDAO.deleteByDeviceId(testId);
     }
 }

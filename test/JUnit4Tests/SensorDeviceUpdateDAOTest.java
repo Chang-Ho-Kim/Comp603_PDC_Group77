@@ -25,6 +25,7 @@ import smarthome.model.Heater;
 public class SensorDeviceUpdateDAOTest {
 
     private DeviceDAO dao;
+    private String testId;
 
     @Before
     public void setUp() {
@@ -33,7 +34,11 @@ public class SensorDeviceUpdateDAOTest {
 
     @After
     public void tearDown() {
-        // nothing global to clean up
+
+        // cleanup test data after each test
+        if (testId != null) {
+            dao.delete(testId);
+        }
     }
 
     /**
@@ -57,7 +62,7 @@ public class SensorDeviceUpdateDAOTest {
     @Test
     public void testUpdateHeaterThresholdAndElectricityUsage() {
 
-        String testId = "TEST_HEATER_" + System.currentTimeMillis();
+        testId = "TEST_HEATER_" + System.currentTimeMillis();
 
         Heater heater = new Heater("Bedroom Heater");
 
@@ -91,8 +96,5 @@ public class SensorDeviceUpdateDAOTest {
 
         // ASSERT: electricity usage updated
         assertEquals(67, updatedHeater.getElectricityUsage());
-
-        // CLEANUP
-        dao.delete(testId);
     }
 }

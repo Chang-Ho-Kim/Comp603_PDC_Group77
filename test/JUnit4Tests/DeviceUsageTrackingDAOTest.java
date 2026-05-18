@@ -33,6 +33,7 @@ public class DeviceUsageTrackingDAOTest {
 
     private DeviceDAO deviceDAO;
     private DeviceUsageDAO usageDAO;
+    private String testId;
 
     @Before
     public void setUp() {
@@ -42,13 +43,18 @@ public class DeviceUsageTrackingDAOTest {
 
     @After
     public void tearDown() {
-        // No global cleanup to avoid affecting real data
+
+        // cleanup test data after each test
+        if (testId != null) {
+            deviceDAO.delete(testId);
+            usageDAO.deleteByDeviceId(testId);
+        }
     }
 
     @Test
     public void testDeviceOnOffUsageTracking() throws Exception {
 
-        String testId = "TEST_" + System.currentTimeMillis();
+        testId = "TEST_" + System.currentTimeMillis();
 
         Light device = new Light("Usage Test Light");
         device.setId(testId);
@@ -102,9 +108,5 @@ public class DeviceUsageTrackingDAOTest {
             assertTrue(dbDuration >= systemDuration - tolerance);
             assertTrue(dbDuration <= systemDuration + tolerance);
         }
-
-        // CLEANUP (only test data)
-        deviceDAO.delete(testId);
-        usageDAO.deleteByDeviceId(testId);
     }
 }

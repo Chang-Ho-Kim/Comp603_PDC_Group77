@@ -38,6 +38,7 @@ public class PowerSaverDeviceAutomationSystemTest {
     private SmartHomeGUIView mockView;
 
     private SimpleThresholdManager thresholdManager;
+    private String testId;
 
     @Before
     public void setUp() {
@@ -59,13 +60,19 @@ public class PowerSaverDeviceAutomationSystemTest {
 
     @After
     public void tearDown() {
-        // no global cleanup required
+
+        // cleanup test data after each test
+        if (testId != null) {
+            system.removeDevice(testId);
+            dao.delete(testId);
+            usageDAO.deleteByDeviceId(testId);
+        }
     }
 
     @Test
     public void testPowerSaverAutomationThroughCentralController() {
 
-        String testId = "TEST_PS_" + System.currentTimeMillis();
+        testId = "TEST_PS_" + System.currentTimeMillis();
 
         // CREATE POWER SAVER DEVICE (TV extends PowerSaverDevice)
         TV tv = new TV("Automation TV");
@@ -99,12 +106,5 @@ public class PowerSaverDeviceAutomationSystemTest {
                 "TV should turn OFF when power threshold is exceeded",
                 tv.isOn()
         );
-
-        // =========================
-        // CLEANUP
-        // =========================
-        system.removeDevice(testId);
-        dao.delete(testId);
-        usageDAO.deleteByDeviceId(testId);
     }
 }

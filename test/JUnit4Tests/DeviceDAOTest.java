@@ -31,6 +31,7 @@ import java.util.List;
 public class DeviceDAOTest {
 
     private DeviceDAO dao;
+    private String testId;
 
     @Before
     public void setUp() {
@@ -39,7 +40,11 @@ public class DeviceDAOTest {
 
     @After
     public void tearDown() {
-        // nothing global to clean up
+
+        // cleanup test data after each test
+        if (testId != null) {
+            dao.delete(testId);
+        }
     }
 
     
@@ -63,7 +68,7 @@ public class DeviceDAOTest {
     @Test
     public void testAddLightDeviceToDatabase() {
 
-        String testId = "TEST_" + System.currentTimeMillis();
+        testId = "TEST_" + System.currentTimeMillis();
         Light light = new Light("Test Bedroom Light");
 
         // BEFORE state
@@ -87,8 +92,5 @@ public class DeviceDAOTest {
         assertNotNull(inserted);
         assertEquals("Test Bedroom Light", inserted.getName());
         assertEquals("Light", inserted.getType());
-
-        // CLEANUP
-        dao.delete(testId);
     }
 }

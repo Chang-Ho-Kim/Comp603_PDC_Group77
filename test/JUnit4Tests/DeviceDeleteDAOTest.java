@@ -25,6 +25,7 @@ import smarthome.model.Light;
 public class DeviceDeleteDAOTest {
 
     private DeviceDAO dao;
+    private String testId;
 
     @Before
     public void setUp() {
@@ -33,7 +34,11 @@ public class DeviceDeleteDAOTest {
 
     @After
     public void tearDown() {
-        // nothing global to clean up
+
+        // cleanup test data after each test
+        if (testId != null) {
+            dao.delete(testId);
+        }
     }
 
     /**
@@ -52,7 +57,7 @@ public class DeviceDeleteDAOTest {
     @Test
     public void testDeleteDeviceFromDatabase() {
 
-        String testId = "TEST_DELETE_" + System.currentTimeMillis();
+        testId = "TEST_DELETE_" + System.currentTimeMillis();
 
         Light light = new Light("Delete Test Light");
 
