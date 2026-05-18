@@ -1,4 +1,4 @@
-package JUnit4Tests;
+package JUnit4Tests_DatabaseOperations_KeyBusinessLogic;
 
 import org.junit.After;
 import org.junit.Before;
