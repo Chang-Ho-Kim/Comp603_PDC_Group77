@@ -35,7 +35,7 @@ public abstract class Device implements ISwitchable, IDeviceUIHandler {
     public void turnOn() {
         if (!isOn) {
             isOn = true;
-            usageDAO.startUsage(name);
+            usageDAO.startUsage(id);
         }
     }
 
@@ -43,7 +43,7 @@ public abstract class Device implements ISwitchable, IDeviceUIHandler {
     public void turnOff() {
         if (isOn) {
             isOn = false;
-            usageDAO.endUsage(name);
+            usageDAO.endUsage(id);
         }
     }
 
@@ -99,7 +99,7 @@ public abstract class Device implements ISwitchable, IDeviceUIHandler {
         this.isOn = on;
 
         if (on) {
-            usageDAO.startUsage(name);
+            usageDAO.startUsage(id);
         }
     }
 }

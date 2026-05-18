@@ -55,8 +55,8 @@ public class PowerSaverDevice extends Device implements IPowerSaveable {
     // IDeviceUIHandler implementation
     @Override
     public String getAdditionalMenuContent() {
-        return "\n\nNote: This powersaver device will turn off if " +
-               "\n      total electricity usage exceeds Threshold";
+        return "\n\nNote: Power Saver mode is always on. That means this device" +
+               "\n      will turn off if total electricity usage exceeds Threshold";
     }
     
     @Override

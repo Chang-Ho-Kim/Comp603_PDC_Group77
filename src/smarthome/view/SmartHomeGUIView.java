@@ -430,6 +430,27 @@ public class SmartHomeGUIView extends JFrame implements View {
 
         if (command.equalsIgnoreCase("5"))
             return new Color(250, 204, 21);
+        
+        if (command.equalsIgnoreCase("6"))
+            return new Color(0, 255, 127);   // neon spring green
+
+        if (command.equalsIgnoreCase("7"))
+            return new Color(255, 0, 255);   // neon magenta
+
+        if (command.equalsIgnoreCase("8"))
+            return new Color(0, 191, 255);   // deep neon sky blue
+
+        if (command.equalsIgnoreCase("9"))
+            return new Color(255, 20, 147);  // neon pink (deep hot pink)
+
+        if (command.equalsIgnoreCase("10"))
+            return new Color(138, 43, 226);  // electric neon purple
+
+        if (command.equalsIgnoreCase("11"))
+            return new Color(255, 140, 0);   // neon orange
+
+        if (command.equalsIgnoreCase("12"))
+            return new Color(127, 255, 0);   // chartreuse neon green
 
         return new Color(139, 92, 246);
     }

@@ -74,6 +74,7 @@ public class DeviceDetailController implements IInterfaceController {
 
             case "4":
             case "5":
+            case "6":
                 boolean handled = device.handleDeviceCommand(command, controller);
                 if (handled) {
                     controller.setCurrentMessage(device.getName() + " updated");
